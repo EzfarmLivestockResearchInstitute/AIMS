@@ -1,0 +1,458 @@
+<?
+session_start();
+date_default_timezone_set('Asia/Seoul');
+
+if(!isset($_SESSION['lang']) OR empty($_SESSION['lang']) ){
+	$_SESSION['lang']=1;
+}
+
+$sessvar=$_SESSION['lang'];
+
+
+if ( !isset($_SESSION['user_id']) OR empty($_SESSION['user_id']) ){
+		echo "
+		<script type=\"text/javascript\">
+			window.location.href = '/index.html';
+		</script>
+	"; 
+}
+/*
+if(!isset($_SESSION['psw']) OR empty($_SESSION['psw']) ){
+		echo "
+		<script type=\"text/javascript\">
+			window.location.href = '/index.html';
+		</script>
+	"; 
+}
+*/
+
+//언어함수
+function selectwords($connect, $langnum, $serialnum) {
+	$sql="select WORDS from languages where LANG=$langnum and SERIAL_NUM='$serialnum' ";
+	$result=mysqli_query($connect, $sql);
+	$img=mysqli_fetch_assoc($result);
+	$lang=$img['WORDS']; 
+	return $lang;
+}
+
+// 품종 이름으로 언어 사전 검색 
+function select_str_word($connect, $langnum, $breed) {
+	$sql="select SERIAL_NUM from languages where WORDS='$breed' ";
+	$result=mysqli_query($connect, $sql);
+	$img=mysqli_fetch_assoc($result);
+	$serialnum=$img['SERIAL_NUM']; 
+	$lang=selectwords($connect, $langnum, $serialnum); 
+	return $lang;
+}
+?>
+
+<? 
+//require "connectdb.php"; 
+  include('connectdb.php'); 
+  $connect=dbconect();
+?>
+<? require "config.php"; ?>
+
+<?Php
+	$ownersname=$_POST['Owners_name'];//축주명
+	$dispecies=$_POST['Disease_occurred_species'];// 질병 발생 축종, 소, 말 ...
+	$diagdisease=$_POST['diagdisease'];
+	$bdate01=$_POST['bdate']; // 시작 일
+	$edate01=$_POST['edate']; // 종료 일
+?>
+
+<!DOCTIME html>
+<html lang="ko">
+<head>
+<meta http-equiv="Content-Type" content="text/html" charset="utf-8">
+<META NAME="DESCRIPTION" CONTENT="">
+
+<link rel="stylesheet" type="text/css" href="./css/admin.css">
+<link rel="stylesheet" type="text/css" href="./css/button_admin.css">
+
+<!-- <script src="http://code.jquery.com/jquery-1.9.1.min.js"></script> -->
+<script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/json2/20110223/json2.js"></script>
+<link rel="stylesheet" href="http://code.jquery.com/ui/1.8.18/themes/base/jquery-ui.css" type="text/css" />
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+
+<!--- 추가 start -->
+<!-- jQuery -->
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js" type="text/javascript"></script>
+<script src="//ajax.googleapis.com/ajax/libs/jqueryui/1/jquery-ui.min.js" type="text/javascript"></script>
+
+<!-- css & bootstrap -->
+<link rel="stylesheet" type="text/css" href="./css/my_style.css" />
+<link rel="stylesheet" type="text/css" href="./css/bootstrap.min.css" />
+<script type="text/javascript" src="./js/bootstrap/bootstrap.min.js"></script>
+<!--- 추가 end -->          
+                 
+<script>
+	$(document).ready(
+		function() {
+			$( "#bdate" ).datepicker(
+				{
+        		dateFormat: 'yy-mm-dd',
+        		showOn:'button',
+        		buttonImage: './images/Icon_calendar.gif',  // 달력 icon 이미지
+        		changeMonth: true,
+        		changeYear: true,
+        		monthNamesShort: ['1','2','3','4','5','6','7','8','9','10','11','12']
+				}
+			);
+		}
+	)
+	$(document).ready(
+		function() {
+			$( "#edate" ).datepicker(
+				{
+        		dateFormat: 'yy-mm-dd',
+        		showOn:'button',
+        		buttonImage: './images/Icon_calendar.gif',  // 달력 icon 이미지
+        		changeMonth: true,
+        		changeYear: true,
+        		monthNamesShort: ['1','2','3','4','5','6','7','8','9','10','11','12']
+				}
+			);
+		}
+	)
+</script>
+<script>
+function ajaxFunction(hamString) {
+	var httpxml;
+	try {
+  		httpxml=new XMLHttpRequest(); // Firefox, Opera 8.0+, Safari
+	}
+	catch (e)  {
+		try {
+			httpxml=new ActiveXObject("Msxml2.XMLHTTP"); 
+		}
+		catch (e) {
+			try {
+				httpxml=new ActiveXObject("Microsoft.XMLHTTP");
+			}
+			catch (e) {
+				alert("Your browser does not support AJAX!");
+				return false;
+			}
+		}
+	}
+
+	// 이벤트 발생시 실행되는 함수 정의 
+	function stateChanged() { 
+		//alert(httpxml.readyState);
+    	if(httpxml.readyState==4){
+			//상태 4인 경우 데이터를 받기 
+			//alert(httpxml.responseText);
+			var myObject = JSON.parse(httpxml.responseText);
+			var pid=myObject.value.pid;
+			var flag=myObject.value.flag;
+			//document.getElementById("dvnum1").innerHTML=" pid="+pid+" flag="+flag;
+			if(flag=='r'){
+				window.location.href = 'ReviewCheckDataModify.html'+'?pid='+pid;
+			}
+			else{
+				location.reload();
+			}
+
+		} // END: if(httpxml.readyState==4) 
+	} // END: function provengChanged()
+	// 데이터베이스에서 자료 가지고 오기 위한 준비
+	var url="assessment.php";
+	
+	url+=hamString;
+	url=url+"&randid="+Math.random();
+
+	// 상태가 바뀌면 이 함수를 실행  
+	httpxml.onreadystatechange=stateChanged; 
+	
+	//비동기 통신 방식으로 url을 보내서 실행
+	httpxml.open("GET",url,false);
+	httpxml.send();
+				
+
+	//httpxml.send(jasonString);	
+}// end of ajaxFunction(choice) 
+
+function revimodirecord(idflag) {
+	//document.getElementById("dvnum0").innerHTML=idflag;
+	ajaxFunction(idflag);
+}
+</script>
+
+<script type="text/javascript">
+var sURL = unescape(window.location.pathname);// 현재의 페이지를 언어만 변경 후 다시 열기
+
+//언어 변경 함수 
+function changeLang(lang){
+	$.ajaxSetup({async:false});//동기식으로 지정
+	var param={lang:lang};
+	$.get("./changelangsession.php", param, refreshpage);
+	// param을 넘겨 서버측 php 파일 실행 후  클라이언트 측 함수 refresshpage 실행하여라. 
+}; 
+
+function refreshpage(strText){
+	//alert("parsed data: " + strText);
+    window.location.href = sURL;// refresh page
+}
+
+function btn_submit(){
+	var myForm = document.myForm;
+	myForm.submit();
+}
+
+</script>
+
+</head>
+<body>
+	
+<div>
+<form name="myForm" action="./revtable.html" method="POST">
+	<input type=hidden name=st value=0>
+
+<!--검색 start-->
+<div class="container-fluid search_box01">
+	<div class="form-inline col-xs-12 col-sm-12 col-md-12 col-lg-12">
+		<div class="col-xs-12 col-sm-10 col-md-10 col-lg-10">
+		
+			<div class="form-group col-xs-12 col-sm-12 col-md-12 col-lg-12 pd_mg00">
+				<div class="col-xs-12 col-sm-12 col-md-2 col-lg-2 control-label search_label"><? echo selectwords($connect, $_SESSION['lang'], 'a0044'); ?>&nbsp;	<!--축주명--></div>
+				<div class="col-xs-12 col-sm-12 col-md-10 col-lg-10 search_in01"><input type="text" name="Owners_name" class="w90p" ></div>
+			</div>
+
+			<div class="form-group col-xs-12 col-sm-12 col-md-12 col-lg-12 pd_mg00">
+				<div class="col-xs-12 col-sm-12 col-md-2 col-lg-2 control-label search_label"><? echo selectwords($connect, $_SESSION['lang'], 'a0052'); ?>&nbsp;<!-- 진단일 --></div>
+				<div class="col-xs-12 col-sm-12 col-md-10 col-lg-10 search_in01">
+					<input type="text" name="bdate" id="bdate" class="w100" value="<?echo $bdate01; ?>"> ~	
+					<input type="text" name="edate" id="edate" class="w100" value="<?echo $edate01; ?>">
+				</div>
+			</div>
+
+			<div class="form-group col-xs-12 col-sm-12 col-md-12 col-lg-12 pd_mg00">
+				<div class="col-xs-12 col-sm-12 col-md-2 col-lg-2 control-label search_label"><? echo selectwords($connect, $_SESSION['lang'], 'a0053'); ?>&nbsp; <!-- 질병발생축종 --></div>
+				<div class="col-xs-12 col-sm-12 col-md-10 col-lg-10 search_in01">
+					<select name=Disease_occurred_species class="w95p">
+						<option value=''><? echo selectwords($connect, $_SESSION['lang'], 'a0053'); ?></option>
+							<?Php
+								require "./config.php";// connection to database 
+								$sql="select distinct anieng from animalstype";
+								foreach ($dbo->query($sql) as $row) {
+									$langanimalstype = select_str_word($connect, $_SESSION['lang'], $row[anieng]); 
+									echo "<option value=$row[anieng]>$langanimalstype</option>";
+								}
+							?>
+						</select>
+				</div>
+			</div>
+
+			<div class="form-group col-xs-12 col-sm-12 col-md-12 col-lg-12 pd_mg00">
+				<div class="col-xs-12 col-sm-12 col-md-2 col-lg-2 control-label search_label"><? echo selectwords($connect, $_SESSION['lang'], 'a0056'); ?>&nbsp;<!--진단명--></div>
+				<div class="col-xs-12 col-sm-12 col-md-10 col-lg-10 search_in01">
+					<select name=diagdisease  class="w95p" >
+						<option value=''> <? echo selectwords($connect, $_SESSION['lang'], 'a0086'); ?> 	</option>
+							<?Php
+								require "./config.php";// connection to database 
+								$sql="select distinct DisEng from animalspecydisease";
+								foreach ($dbo->query($sql) as $row) {
+									$langdisease = select_str_word($connect, $_SESSION['lang'], $row[DisEng]); 
+									echo "<option value='$row[DisEng]'>$langdisease </option>";
+								}
+							?>
+						</select>
+				</div>
+			</div>
+		
+		</div>
+
+		<div class="col-xs-12 col-sm-2 col-md-2 col-lg-2 btn_mg01">
+			<span class="btn_gtBlue w50"><a href='#' onclick="btn_submit()"><? echo selectwords($connect, $_SESSION['lang'], 'a0164'); ?></a></span><!--submit버튼-->	
+		</div>
+
+	</div>
+</div>
+<!--검색 end-->
+
+</form>
+
+
+<?php  
+
+$con1 = $connect;
+	
+if (mysqli_connect_errno()) {
+	echo "Failed to connect to MySQL: " . mysqli_connect_error();
+}
+	
+if($ownersname!=NULL){
+	$sql="SELECT * FROM disease where Owners_name='$ownersname' and flagDelete=1";
+	$result=mysqli_query($con1, $sql);
+} else {
+	if (($bdate01!=NULL) and ($edate01!=NULL)) {
+		if (($dispecies==NULL) and ($diagdisease!=NULL)){ 
+			$result = mysqli_query($con1,"SELECT * FROM disease where (Diagnostic_date >='$bdate01' and Diagnostic_date <='$edate01' and Diagnosis='$diagdisease' and flagDelete=1)");
+		}
+		if(($dispecies!=NULL) and ($diagdisease==NULL)){
+			$result = mysqli_query($con1,"SELECT * FROM disease where (Diagnostic_date >='$bdate01' and Diagnostic_date <='$edate01' and Disease_occurred_species = '$dispecies' and flagDelete=1)");
+		}
+		if(($dispecies!=NULL) and ($diagdisease!=NULL)){
+			$result = mysqli_query($con1,"SELECT * FROM disease where (Diagnostic_date >='$bdate01' and Diagnostic_date <='$edate01' and Disease_occurred_species = '$dispecies' and Diagnosis='$diagdisease' and flagDelete=1)");
+		}
+		if(($dispecies==NULL) and ($diagdisease==NULL)){
+			$result = mysqli_query($con1,"SELECT * FROM disease where (Diagnostic_date >='$bdate01' and Diagnostic_date <='$edate01' and flagDelete=1)");
+		}
+	}
+
+	if (($bdate01!=NULL) and ($edate01==NULL)) {
+		if (($dispecies==NULL) and ($diagdisease!=NULL)){
+			$result = mysqli_query($con1,"SELECT * FROM disease  where (Diagnostic_date >='$bdate01' and Diagnosis='$diagdisease' and flagDelete=1) ");
+		}
+		if(($dispecies!=NULL) and ($diagdisease==NULL)){
+			$result = mysqli_query($con1,"SELECT * FROM disease  where (Diagnostic_date >='$bdate01' and Disease_occurred_species = '$dispecies' and flagDelete=1) ");
+		}
+		if(($dispecies!=NULL) and ($diagdisease!=NULL)){
+			$result = mysqli_query($con1,"SELECT * FROM disease  where (Diagnostic_date >='$bdate01' and Disease_occurred_species = '$dispecies' and Diagnosis='$diagdisease' and flagDelete=1 ) ");
+		}
+		if(($dispecies==NULL) and ($diagdisease==NULL)){
+			$result = mysqli_query($con1,"SELECT * FROM disease  where (Diagnostic_date >='$bdate01' and flagDelete=1) ");
+		}
+	}
+
+
+	if (($bdate01==NULL) and ($edate01!=NULL)) {
+		if (($dispecies==NULL) and ($diagdisease!=NULL)){
+			$result = mysqli_query($con1,"SELECT * FROM disease where (Diagnostic_date <='$edate01' and Diagnosis='$diagdisease' and flagDelete=1) ");
+		}
+		if(($dispecies!=NULL) and ($diagdisease==NULL)){
+			$result = mysqli_query($con1,"SELECT * FROM disease where (Diagnostic_date <='$edate01' and Disease_occurred_species = '$dispecies' and flagDelete=1) ");
+		}
+		if(($dispecies!=NULL) and ($diagdisease!=NULL)){
+			$result = mysqli_query($con1,"SELECT * FROM disease where (Diagnostic_date <='$edate01' and Disease_occurred_species = '$dispecies' and Diagnosis='$diagdisease' and flagDelete=1) ");
+		}
+		if(($dispecies==NULL) and ($diagdisease==NULL)){
+			$result = mysqli_query($con1,"SELECT * FROM disease where (Diagnostic_date <='$edate01' and flagDelete=1)  ");
+		}
+	}
+
+
+	if (($bdate01==NULL) and ($edate01==NULL)) {
+		if (($dispecies==NULL) and ($diagdisease!=NULL)){
+			$result = mysqli_query($con1,"SELECT * FROM disease where (Diagnosis='$diagdisease' and flagDelete=1) ");
+		}
+		if(($dispecies!=NULL) and ($diagdisease==NULL)){
+			$result = mysqli_query($con1,"SELECT * FROM disease where (Disease_occurred_species = '$dispecies' and flagDelete=1) ");
+		}
+		if(($dispecies!=NULL) and ($diagdisease!=NULL)){
+			$result = mysqli_query($con1,"SELECT * FROM disease where ( Disease_occurred_species = '$dispecies' and Diagnosis='$diagdisease' and flagDelete=1 )");
+		}
+		if(($dispecies==NULL) and ($diagdisease==NULL)){
+			$result = mysqli_query($con1,"SELECT * FROM disease where flagDelete=1 ");
+		}
+	}
+}
+
+	echo "<div class='tbl_list' style='overflow-x:auto'><table class='table' style='word-break:break-all'>
+<tr>
+	<th>".selectwords($con1, $_SESSION['lang'], 'a0159')./*자료수정*/"</th>
+	<th>".selectwords($con1, $_SESSION['lang'], 'a0160')./*자료삭제*/"</th>
+	<th>".selectwords($con1, $_SESSION['lang'], 'a0044')./*축주명*/"</th>
+	<th>".selectwords($con1, $_SESSION['lang'], 'a0046')./*도/시*/"</th>
+	<th>".selectwords($con1, $_SESSION['lang'], 'a0047')./*구/솜*/"</th>
+	<th>".selectwords($con1, $_SESSION['lang'], 'a0048')./*박/허러*/"</th>
+	<th>".selectwords($con1, $_SESSION['lang'], 'a0049').selectwords($con1, $_SESSION['lang'], 'a0161')./*위도 도*/"</th>
+	<th>".selectwords($con1, $_SESSION['lang'], 'a0049').selectwords($con1, $_SESSION['lang'], 'a0162')./*위도 분*/"</th>
+	<th>".selectwords($con1, $_SESSION['lang'], 'a0049').selectwords($con1, $_SESSION['lang'], 'a0163')./*위도 초*/"</th>
+	<th>".selectwords($con1, $_SESSION['lang'], 'a0050').selectwords($con1, $_SESSION['lang'], 'a0161')./*경도 도*/"</th>
+	<th>".selectwords($con1, $_SESSION['lang'], 'a0050').selectwords($con1, $_SESSION['lang'], 'a0162')./*경도 분*/"</th>
+	<th>".selectwords($con1, $_SESSION['lang'], 'a0050').selectwords($con1, $_SESSION['lang'], 'a0163')./*경도 초*/"</th>
+	<th>".selectwords($con1, $_SESSION['lang'], 'a0051')./*기타*/"</th>
+	<th>".selectwords($con1, $_SESSION['lang'], 'a0052')./*진단일*/"</th>
+	<th>".selectwords($con1, $_SESSION['lang'], 'a0058')./*신규발생여부*/"</th>
+	<th>".selectwords($con1, $_SESSION['lang'], 'a0053')./*질병발생축종*/"</th>
+	<th>".selectwords($con1, $_SESSION['lang'], 'a0054')./*품종*/"</th>
+	<th>".selectwords($con1, $_SESSION['lang'], 'a0055')./*비고*/"</th>
+	<th>".selectwords($con1, $_SESSION['lang'], 'a0056')./*진단명*/"</th>
+
+	<th>".selectwords($con1, $_SESSION['lang'], 'a0057')./*사육두수*/"</th>
+	<th>".selectwords($con1, $_SESSION['lang'], 'a0061')./*발생두수*/"</th>
+	<th>".selectwords($con1, $_SESSION['lang'], 'a0062')./*폐사두수*/"</th>
+	<th>".selectwords($con1, $_SESSION['lang'], 'a0064').selectwords($con1, $_SESSION['lang'], 'a0158')./*양 수*/"</th>
+	<th>".selectwords($con1, $_SESSION['lang'], 'a0065').selectwords($con1, $_SESSION['lang'], 'a0158')./*염소 수*/"</th>
+	<th>".selectwords($con1, $_SESSION['lang'], 'a0066').selectwords($con1, $_SESSION['lang'], 'a0158')./*소 수*/"</th>
+	<th>".selectwords($con1, $_SESSION['lang'], 'a0067').selectwords($con1, $_SESSION['lang'], 'a0158')./*말 수*/"</th>
+	<th>".selectwords($con1, $_SESSION['lang'], 'a0068').selectwords($con1, $_SESSION['lang'], 'a0158')./*낙타 수*/"</th>
+	<th>".selectwords($con1, $_SESSION['lang'], 'a0069').selectwords($con1, $_SESSION['lang'], 'a0158')./*순록 수*/"</th>
+	<th>".selectwords($con1, $_SESSION['lang'], 'a0070').selectwords($con1, $_SESSION['lang'], 'a0158')./*돼지 수*/"</th>
+	<th>".selectwords($con1, $_SESSION['lang'], 'a0071').selectwords($con1, $_SESSION['lang'], 'a0158')./*닭 수*/"</th>
+	<th>".selectwords($con1, $_SESSION['lang'], 'a0072').selectwords($con1, $_SESSION['lang'], 'a0158')./*기타 수*/"</th>
+<th>".selectwords($con1, $_SESSION['lang'], 'a0157')./*자료 입력일*/"</th>
+</tr>"; 
+
+
+
+while($row = mysqli_fetch_array($result)) {
+
+echo "<tr>";
+$valStr='?pid='.$row['PID'].'&flag='.'r'; 
+$tmp1='<td align="center"> <input type=button value="r" onclick="revimodirecord(';
+$tmp2="'$valStr'";
+$tmp3='); return false;" > </td>';
+$tmp=$tmp1.$tmp2.$tmp3;
+echo $tmp;
+
+$valStr='?pid='.$row['PID'].'&flag='.'d'; 
+$tmp1='<td align="center"> <input type=button value="d" onclick="revimodirecord(';
+$tmp2="'$valStr'";
+$tmp3='); return false;" > </td>';
+$tmp=$tmp1.$tmp2.$tmp3;
+echo $tmp;
+
+echo "<td>" . $row['Owners_name'] . "</td>";
+$word=$row['province'];
+$wordprop=select_str_word($con1, $sessvar, $word);
+echo "<td>" .$wordprop."</td>";
+$word=$row['county'];
+$wordprop=select_str_word($con1, $sessvar, $word);
+echo "<td>" .$wordprop."</td>";
+$word=$row['bag'];
+$wordprop=select_str_word($con1, $sessvar, $word);
+echo "<td>" . $wordprop. "</td>";
+echo "<td>" . $row['lat_deg'] . "</td>";
+echo "<td>" . $row['lat_min'] . "</td>";
+echo "<td>" . $row['lat_sec'] . "</td>";
+echo "<td>" . $row['long_deg'] . "</td>";
+echo "<td>" . $row['long_min'] . "</td>";
+echo "<td>" . $row['long_sec'] . "</td>";
+echo "<td>" . $row['Other'] . "</td>";
+echo "<td>" . $row['Diagnostic_date'] . "</td>";
+echo "<td>" . $row['New_additional_occurance'] . "</td>";
+$word=$row['Disease_occurred_species'];
+$wordprop=select_str_word($con1, $sessvar, $word);
+echo "<td>" . $wordprop. "</td>";
+$word=$row['Breed'];
+$wordprop=select_str_word($con1, $sessvar, $word);
+echo "<td>" . $wordprop. "</td>";
+echo "<td>" . $row['Note'] . "</td>";
+$word=$row['Diagnosis'];
+$wordprop=select_str_word($con1, $sessvar, $word);
+echo "<td>" . $wordprop. "</td>";
+echo "<td>" . $row['Livestock_population'] . "</td>";
+echo "<td>" . $row['Cases'] . "</td>";
+echo "<td>" . $row['Deaths'] . "</td>";
+echo "<td>" . $row['nsheep'] . "</td>";
+echo "<td>" . $row['ngoat'] . "</td>";
+echo "<td>" . $row['ncattle'] . "</td>";
+echo "<td>" . $row['nhorse'] . "</td>";
+echo "<td>" . $row['ncamel'] . "</td>";
+echo "<td>" . $row['nreindeer'] . "</td>";
+echo "<td>" . $row['npig'] . "</td>";
+echo "<td>" . $row['nchicken'] . "</td>";
+echo "<td>" . $row['nothers'] . "</td>";
+echo "<td>" . $row['dateinput'] . "</td>";
+echo "</tr>";
+}
+
+echo "</table></div>";
+
+mysqli_close($con1);
+?>
+</body>
+</html>

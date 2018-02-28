@@ -1,0 +1,535 @@
+<? 
+session_start();
+ 
+if(!isset($_SESSION['lang']) OR empty($_SESSION['lang']) ){
+	$_SESSION['lang']=1;
+
+}
+	
+$user_id=$_SESSION['user_id'];
+$sessvar=$_SESSION['lang'];
+
+$count=$_GET['count'];
+$pid=$_GET['pid'];
+
+//echo '원글의 pid : ';
+//echo $pid.'<br>';
+//echo '댓글의 pid :';
+//echo $pidco.'<br>';
+//echo '조회수 :';
+//echo $count.'<br>';
+
+
+	
+//언어함수
+function selectwords($connect, $langnum, $serialnum) {
+	$sql="select WORDS from languages where LANG=$langnum and SERIAL_NUM='$serialnum' ";
+	$result=mysqli_query($connect, $sql);
+	$img=mysqli_fetch_assoc($result);
+	$lang=$img['WORDS']; 
+	return $lang;
+}
+
+
+//% DB 연결
+   include('connectdb.php'); 
+   $connect = dbconect();
+
+if(!$connect)
+	die("DB 접속 실패: " .mysql_error());
+//else
+//	echo "Successful!";
+
+?>
+
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title> TEST </title>
+<link rel="stylesheet" type="text/css" href="./css/admin.css">
+<link rel="stylesheet" type="text/css" href="./css/button_admin.css">
+   
+<!-- <script src="http://code.jquery.com/jquery-1.9.1.min.js"></script> -->
+<script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/json2/20110223/json2.js"></script>
+<link rel="stylesheet" href="http://code.jquery.com/ui/1.8.18/themes/base/jquery-ui.css" type="text/css" />
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+<!-- <script src="http://code.jquery.com/ui/1.8.18/jquery-ui.min.js"></script> -->
+
+<!--- 추가 start -->
+<!-- jQuery -->
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js" type="text/javascript"></script>
+<script src="//ajax.googleapis.com/ajax/libs/jqueryui/1/jquery-ui.min.js" type="text/javascript"></script>
+
+<!-- css & bootstrap -->
+<link rel="stylesheet" type="text/css" href="./css/my_style.css" />
+<link rel="stylesheet" type="text/css" href="./css/bootstrap.min.css" />
+<script type="text/javascript" src="./js/bootstrap/bootstrap.min.js"></script>
+<!--- 추가 end -->
+
+<script>
+function ajaxFunction(hamString) {
+	var httpxml;
+	try {
+  		httpxml=new XMLHttpRequest(); // Firefox, Opera 8.0+, Safari
+	}
+	catch (e)  {
+		try {
+			httpxml=new ActiveXObject("Msxml2.XMLHTTP"); 
+		}
+		catch (e) {
+			try {
+				httpxml=new ActiveXObject("Microsoft.XMLHTTP");
+			}
+			catch (e) {
+				alert("Your browser does not support AJAX!");
+				return false;
+			}
+		}
+	}
+
+	// 이벤트 발생시 실행되는 함수 정의 
+	function stateChanged() { 
+		//alert(httpxml.readyState);
+    	if(httpxml.readyState==4){
+			//상태 4인 경우 데이터를 받기 
+			//alert(httpxml.responseText);
+			var myObject = JSON.parse(httpxml.responseText);
+			var pid=myObject.value.pid;
+			var flag=myObject.value.flag;
+			var count=myObject.value.count;
+			var id=myObject.value.id;
+			var name=myObject.value.name;			//document.getElementById("dvnum1").innerHTML=" pid="+pid+" flag="+flag;
+			if(id==name & flag=='r'){
+				window.location.href = 'boardModify.html'+'?pid='+pid+'&count='+count;
+			}
+			if(id!=name){
+				window.alert("권한이 없습니다.");
+				//2017.08.02 RED 수정 (권한이 없을 시 카운트 무의미)
+				//window.location.href = 'boardview.html'+'?pid='+pid+'&count='+count;
+			}
+			if(id==name & flag=='d'){
+				location.replace("board.html");
+			}
+
+		} // END: if(httpxml.readyState==4) 
+	} // END: function provengChanged()
+	// 데이터베이스에서 자료 가지고 오기 위한 준비
+	var url="boardass.php";
+	
+	url+=hamString;
+	url=url+"&randid="+Math.random();
+
+	// 상태가 바뀌면 이 함수를 실행  
+	httpxml.onreadystatechange=stateChanged; 
+	
+	//비동기 통신 방식으로 url을 보내서 실행
+	httpxml.open("GET",url,false);
+	httpxml.send();
+				
+
+	//httpxml.send(jasonString);	
+}// end of ajaxFunction(choice) 
+
+function revimodirecord(idflag) {
+	//document.getElementById("dvnum0").innerHTML=idflag;
+	ajaxFunction(idflag);
+}
+</script>
+
+<script>
+function ajaxFunction2(hamString) {
+	var httpxml;
+	try {
+  		httpxml=new XMLHttpRequest(); // Firefox, Opera 8.0+, Safari
+	}
+	catch (e)  {
+		try {
+			httpxml=new ActiveXObject("Msxml2.XMLHTTP"); 
+		}
+		catch (e) {
+			try {
+				httpxml=new ActiveXObject("Microsoft.XMLHTTP");
+			}
+			catch (e) {
+				alert("Your browser does not support AJAX!");
+				return false;
+			}
+		}
+	}
+
+	// 이벤트 발생시 실행되는 함수 정의 
+	function stateChanged() { 
+		//alert(httpxml.readyState);
+    	if(httpxml.readyState==4){
+			//상태 4인 경우 데이터를 받기 
+			//alert(httpxml.responseText);
+			var myObject = JSON.parse(httpxml.responseText);
+			var pid=myObject.value.pid;
+			var pidco=myObject.value.pidco;
+			var flag=myObject.value.flag;
+			var count=myObject.value.count;
+			var id=myObject.value.id;
+			var name=myObject.value.name;	
+			//document.getElementById("dvnum1").innerHTML=" pid="+pid+" flag="+flag;
+						
+			
+			if(id==name & flag=='r'){
+				window.location.href = 'boardcommo.html'+'?pidco='+pidco+'&pid='+pid+'&count='+count;
+			}
+			if(flag=='c'){
+				window.location.href = 'boardrecomment.html'+'?pidco='+pidco+'&pid='+pid+'&count='+count;
+			}
+			else if(id!=name){
+				window.alert("권한이 없습니다.");
+				//2017.08.02 RED 수정 (권한이 없을 시 카운트 무의미)
+				//window.location.href = 'boardview.html'+'?pid='+pid+'&count='+count;
+			}
+			else{
+				location.reload();
+			}
+			
+
+		} // END: if(httpxml.readyState==4) 
+	} // END: function provengChanged()
+	// 데이터베이스에서 자료 가지고 오기 위한 준비
+	var url="boardcommentass.php";
+	
+	url+=hamString;
+	url=url+"&randid="+Math.random();
+
+	// 상태가 바뀌면 이 함수를 실행  
+	httpxml.onreadystatechange=stateChanged; 
+	
+	//비동기 통신 방식으로 url을 보내서 실행
+	httpxml.open("GET",url,false);
+	httpxml.send();
+				
+
+	//httpxml.send(jasonString);	
+}// end of ajaxFunction(choice) 
+
+function comment(idflag) {
+	//document.getElementById("dvnum0").innerHTML=idflag;
+	ajaxFunction2(idflag);
+}
+</script>
+<script>
+function ajaxFunction3(hamString) {
+	var httpxml;
+	try {
+  		httpxml=new XMLHttpRequest(); // Firefox, Opera 8.0+, Safari
+	}
+	catch (e)  {
+		try {
+			httpxml=new ActiveXObject("Msxml2.XMLHTTP"); 
+		}
+		catch (e) {
+			try {
+				httpxml=new ActiveXObject("Microsoft.XMLHTTP");
+			}
+			catch (e) {
+				alert("Your browser does not support AJAX!");
+				return false;
+			}
+		}
+	}
+
+	// 이벤트 발생시 실행되는 함수 정의 
+	function stateChanged() { 
+		//alert(httpxml.readyState);
+    	if(httpxml.readyState==4){
+			//상태 4인 경우 데이터를 받기 
+			//alert(httpxml.responseText);
+			var myObject = JSON.parse(httpxml.responseText);
+			var pid=myObject.value.pid;
+			var pidco=myObject.value.pidco;
+			var pidrc=myObject.value.pidrc;
+			var flag=myObject.value.flag;
+			var count=myObject.value.count;
+			//document.getElementById("dvnum1").innerHTML=" pid="+pid+" flag="+flag;
+			if(flag=='r'){
+				window.location.href = 'boardrecommo.html'+'?pidco='+pidco+'&pid='+pid+'&count='+count+'&pidrc='+pidrc;
+			}
+			else{
+				location.reload();
+			}
+
+		} // END: if(httpxml.readyState==4) 
+	} // END: function provengChanged()
+	// 데이터베이스에서 자료 가지고 오기 위한 준비
+	var url="boardrecommentass.php";
+	
+	url+=hamString;
+	url=url+"&randid="+Math.random();
+
+	// 상태가 바뀌면 이 함수를 실행  
+	httpxml.onreadystatechange=stateChanged; 
+	
+	//비동기 통신 방식으로 url을 보내서 실행
+	httpxml.open("GET",url,false);
+	httpxml.send();
+				
+
+	//httpxml.send(jasonString);	
+}// end of ajaxFunction(choice) 
+
+function recomment(idflag) {
+	//document.getElementById("dvnum0").innerHTML=idflag;
+	ajaxFunction3(idflag);
+}
+</script>
+
+
+
+<script type="text/javascript">
+var sURL = unescape(window.location.pathname);// 현재의 페이지를 언어만 변경 후 다시 열기
+
+//언어 변경 함수 
+function changeLang(lang){
+	$.ajaxSetup({async:false});//동기식으로 지정
+	var param={lang:lang};
+	$.get("changelangsession.php", param, refreshpage);
+	// param을 넘겨 서버측 php 파일 실행 후  클라이언트 측 함수 refresshpage 실행하여라. 
+}; 
+
+function refreshpage(strText){
+	//alert("parsed data: " + strText);
+    window.location.href = sURL;// refresh page
+}
+
+function btn_submit(){
+	var myForm = document.myForm;
+	myForm.submit();
+}
+
+</script>
+</head>
+
+
+<body>
+<?php
+$con1 = dbconect();
+
+// Check connection
+if (mysqli_connect_errno()) {
+echo "Failed to connect to MySQL: " . mysqli_connect_error();
+}
+$result = mysqli_query($con1,"SELECT * FROM board where PID='$pid' AND DeleteOrNot=1 ");
+while($row = mysqli_fetch_array($result)) {
+	$layer=$row['layer'];
+	$LinkedID=$row['LinkedID'];
+	$name=$row['name'];
+	$title=$row['title'];
+	$contents=$row['contents'];
+	$posteddate=$row['posteddate'];
+	$hits=$row['hits'];
+	$DeleteOrNot=$row['DeleteOrNot'];
+}
+
+$sql1="UPDATE board SET hits='$count' WHERE PID='$pid' ";
+
+if (!mysqli_query($con1,$sql1)) {
+die('Error: ' . mysqli_error($con1));
+}
+mysqli_close($con1);
+
+?>
+
+<div class="tbl_detail">
+	<table>
+		<col width="10%">
+		<col width="60%">
+		<col width="17%">
+		<col width="13%">
+		<tbody>
+			<tr>
+				<th> <!--제목 -->
+					<?php echo selectwords($connect, $_SESSION['lang'], a0092);?>
+				</th> 
+				<td align="left" colspan="3">
+					<?php echo $title; ?>
+				</td>
+			</tr>
+			<tr>
+				<td colspan="2" align="left">
+					<?php echo $name; ?>
+				</td>
+				<td align="center">
+					<?php echo $posteddate; ?>
+				</td>
+				<td align="center">
+					<?php echo $hits; ?>
+				</td>
+			</tr>
+			<tr>
+				<th> <!--내용 -->
+					<?php echo selectwords($connect, $_SESSION['lang'], a0093);?>
+				</th>
+				<td colspan="3" style="height:300px;">
+					<?php echo nl2br($contents); ?>
+				</td>
+			</tr>
+		</tbody>
+	</table>
+</div>
+
+<br>
+<div align="center">
+	<table>
+		<tr>
+			<!-- 글 수정 및 삭제 하기 -->
+			<?php
+				if ($_SESSION['adminYn'] == '0') {
+
+				$con1 = dbconect();
+
+				// Check connection
+				if (mysqli_connect_errno()) {
+					echo "Failed to connect to MySQL: " . mysqli_connect_error();
+				}
+				
+				$valStr='?pid='.$pid.'&flag='.'r'.'&count='.$count.'&id='.$user_id.'&name='.$name; 
+				$tmp1='<td><span class="btn_gtBlue w70"><a href="#Foo" onclick=" return revimodirecord(';
+				$tmp2="'$valStr'";
+				$tmp3=')"><strong>'.selectwords($connect, $_SESSION['lang'], a0155).'</strong></a></span></td>';
+				$tmp=$tmp1.$tmp2.$tmp3;
+				echo $tmp;
+				
+				$valStr='?pid='.$pid.'&flag='.'d'.'&id='.$user_id.'&name='.$name;
+				$tmp1='<td><span class="btn_gtBlue w70"><a href="#Foo" onclick=" return revimodirecord(';
+				$tmp2="'$valStr'";
+				$tmp3=')"><strong>'.selectwords($connect, $_SESSION['lang'], a0256).'</strong></a></span></td>';
+				$tmp=$tmp1.$tmp2.$tmp3;
+				echo $tmp;
+				}
+			?>
+		</tr>
+	</table>
+</div>
+
+<?php
+	$boardcomment='boardcomment.php'.'?pid='.$pid.'&aaa='.'0'.'&count='.$count;
+?>
+<!-- 2017.06.28 RED 수정 -->
+<form action="<? echo $boardcomment; ?>" method="post" name="myForm">
+	<div class="tbl_detail">
+		<table> 
+			<col width="10%">
+			<col width="90%">
+				<tr>
+					<input type="hidden" name="pid" value='<? echo $pid;?>'>
+					<input type="hidden" name="colayer" value='1'>
+					<input type="hidden" name="coLinkedID" value='<? echo $pid; ?>'>
+					<th>
+						<? echo selectwords($connect, $_SESSION['lang'], a0257);?> 
+					</th>
+					<td>
+						<input type="text" id="comment"  name="comment" colspan="2" style="width:90%;">
+						<span class="btn_gtBlue w80"><a href='#' onclick="btn_submit();"><? echo selectwords($connect, $sessvar, a0043);?></a></span>
+					</td>
+				</tr>
+		</table>
+	</div>
+</form>		
+
+<form action=" " method="post">
+	<div class="tbl_detail">
+			<?php
+				echo '
+				<input type="hidden" name="pid" value='.$pid.'>
+				<input type="hidden" name="colayer" value="2">
+				<input type="hidden" name="coLinkedID" value='.$pid.'>';
+				
+				$con1 = dbconect();	
+				
+				// Check connection
+				if (mysqli_connect_errno()) {
+					echo "Failed to connect to MySQL: " . mysqli_connect_error();
+				}
+				$result = mysqli_query($con1,"SELECT * FROM board where LinkedID='$pid' AND DeleteOrNot=1");
+				
+				while($row = mysqli_fetch_array($result)) { //                          댓글1의 수정 및 삭제, 댓댓글달기
+					$pidco = $row['PID'];
+					$name = $row['name']; 
+					$posteddate = $row['posteddate'];
+					$contents=$row['contents'];
+					echo '<table>   <!-- 댓글 보여지고 댓댓글,수정,삭제 버튼  및 댓댓글의 수정 삭제 -->
+						<col width="10%">
+						<col width="80%">
+						<col width="10%">
+						<tr>
+							<th>'.$name.'</th>
+							<td>'.$contents.'</td>
+							<td>'.$posteddate.'</td>';
+					/*
+					 	    $valStr='?pidco='.$pidco.'&flag='.'c'.'&pid='.$pid.'&count='.$count.'&id='.$user_id.'&name='.$name; 
+							$tmp1='<td align="center"> <a href="#Foo" onclick=" return comment(';
+							$tmp2="'$valStr'";
+							$tmp3=')">'.selectwords($connect, $_SESSION['lang'], a0257).'</a></td>';
+							$tmp=$tmp1.$tmp2.$tmp3;
+							echo $tmp;
+							
+							$valStr='?pidco='.$pidco.'&flag='.'r'.'&pid='.$pid.'&count='.$count.'&id='.$user_id.'&name='.$name; 
+							$tmp1='<td align="center"> <a href="#Foo" onclick=" return comment(';
+							$tmp2="'$valStr'";
+							$tmp3=')">'.selectwords($connect, $_SESSION['lang'], a0155).'</a></td>';
+							$tmp=$tmp1.$tmp2.$tmp3;
+							echo $tmp;
+			
+							$valStr='?pidco='.$pidco.'&flag='.'d'.'&pid='.$row['PID'].'&id='.$user_id.'&name='.$name; 
+							$tmp1='<td align="center"> <a href="#Foo" onclick=" return comment(';
+							$tmp2="'$valStr'";
+							$tmp3=')">'.selectwords($connect, $_SESSION['lang'], a0256).'</a></td>';
+							$tmp=$tmp1.$tmp2.$tmp3;
+							echo $tmp;
+					*/
+					echo '</tr></table>';
+					/*
+					$result2 = mysqli_query($con1,"SELECT * FROM board where LinkedID='$pidco' AND DeleteOrNot=1"); //    댓댓글 보여지기
+							while($row = mysqli_fetch_array($result2)) {
+									$pid2 = $row['PID']; 
+									$name2 = $row['name']; 
+									$posteddate2 = $row['posteddate'];
+									$contents2=$row['contents'];
+									
+									echo '<table>   <!-- 댓글 보여지고 댓댓글,수정,삭제 버튼  및 댓댓글의 수정 삭제 -->
+									<col width="100px">
+									<col width="650px">
+									<col width="200px"> 
+									<col width="50px">
+									<col width="50px">
+									<col width="50px">
+										<tr>
+											<th>└'.$name2.'</th>
+											<td>'.$contents2.'</td>
+											<td>'.$posteddate2.'</td>
+											<td></td>
+											';
+											
+											$valStr='?pidco='.$pidco.'&flag='.'r'.'&pid='.$pid.'&pidrc='.$pid2.'&count='.$count.'&id='.$user_id.'&name='.$name; 
+											$tmp1='<td align="center"> <a href="#Foo" onclick=" return recomment(';
+											$tmp2="'$valStr'";
+											$tmp3=')">'.selectwords($connect, $_SESSION['lang'], a0155).'</a></td>';
+											$tmp=$tmp1.$tmp2.$tmp3;
+											echo $tmp;
+			
+											$valStr='?pidco='.$pidco.'&flag='.'d'.'&pid='.$pid.'&pidrc='.$pid2.'&id='.$user_id.'&name='.$name; 
+											$tmp1='<td align="center"> <a href="#Foo" onclick=" return recomment(';
+											$tmp2="'$valStr'";
+											$tmp3=')">'.selectwords($connect, $_SESSION['lang'], a0256).'</a></td>';
+											$tmp=$tmp1.$tmp2.$tmp3;
+											echo $tmp;
+											
+									echo '</tr></table>';
+						
+							}
+							*/
+				}
+				mysqli_close($con1);
+			?>
+	</div>
+</form>
+<br>
+</body>
+</html>
+	

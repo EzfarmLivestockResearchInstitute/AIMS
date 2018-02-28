@@ -1,0 +1,158 @@
+<? 
+session_start();
+date_default_timezone_set('Asia/Seoul');
+ 
+if(!isset($_SESSION['lang']) OR empty($_SESSION['lang']) ){
+	$_SESSION['lang']=1;
+}
+
+	//$_SESSION['user_id']=$user_id;
+	$user_id = $_SESSION['user_id'];
+	$sessvar=$_SESSION['lang'];
+
+	$pid=$_GET['pid'];
+	//echo $pid."우하하";
+	$count=$_GET['count'];
+	//echo $count."조회수";
+	
+
+//언어함수
+function selectwords($connect, $langnum, $serialnum) {
+	$sql="select WORDS from languages where LANG=$langnum and SERIAL_NUM='$serialnum' ";
+	$result=mysqli_query($connect, $sql);
+	$img=mysqli_fetch_assoc($result);
+	$lang=$img['WORDS']; 
+	return $lang;
+}
+
+//% DB 연결
+   include('connectdb.php'); 
+   $connect = dbconect();
+
+if(!$connect)
+	die("DB 접속 실패: " .mysql_error());
+//else
+//	echo "Successful!";
+
+?>
+
+<!DOCTIME html>
+<html>
+<head>
+<meta charset="utf-8">
+<title> M-AIMS Management Tree </title>
+<link rel="stylesheet" type="text/css" href="./css/admin.css">
+<link rel="stylesheet" type="text/css" href="./css/button_admin.css">
+
+
+<!--- 추가 start -->
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js" type="text/javascript"></script>
+<script src="//ajax.googleapis.com/ajax/libs/jqueryui/1/jquery-ui.min.js" type="text/javascript"></script>
+
+<!-- Include Fancytree skin and library -->
+<link href="utility/fancytree/skin-win8/ui.fancytree.min.css" rel="stylesheet" type="text/css">
+<script src="/utility/fancytree/jquery.fancytree-all.min.js" type="text/javascript"></script>
+
+<!-- css & bootstrap -->
+<link rel="stylesheet" type="text/css" href="./css/my_style.css" />
+<link rel="stylesheet" type="text/css" href="./css/bootstrap.min.css" />
+<script type="text/javascript" src="./js/bootstrap/bootstrap.min.js"></script>
+<!--- 추가 end -->		
+
+<script type="text/javascript">
+var sURL = unescape(window.location.pathname);// 현재의 페이지를 언어만 변경 후 다시 열기
+
+//언어 변경 합수 
+function changeLang(lang){
+	$.ajaxSetup({async:false});//동기식으로 지정
+	var param={lang:lang};
+	$.get("changelangsession.php", param, refreshpage);
+	// param을 넘겨 서버측 php 파일 실행 후  클라이언트 측 함수 refresshpage 실행하여라. 
+}; 
+
+function refreshpage(strText){
+	//alert("parsed data: " + strText);
+    window.location.href = sURL;// refresh page
+}
+
+function btn_submit(){
+	var myForm = document.myForm;
+	myForm.submit();
+}
+
+</script>	
+</head>
+
+<body>
+<?php
+$con1 = dbconect();
+
+// Check connection
+if (mysqli_connect_errno()) {
+echo "Failed to connect to MySQL: " . mysqli_connect_error();
+}
+$result = mysqli_query($con1,"SELECT * FROM board where PID='$pid' AND DeleteOrNot=1 ");
+while($row = mysqli_fetch_array($result)) {
+	$layer=$row['layer'];
+	$LinkedID=$row['LinkedID'];
+	$name=$row['name'];
+	$title=$row['title'];
+	$contents=$row['contents'];
+	$posteddate=$row['posteddate'];
+	$hits=$row['hits'];
+	$DeleteOrNot=$row['DeleteOrNot'];
+}
+
+?>
+
+<?
+	$modify='boardmodify.php'.'?pid='.$pid.'&count='.$count;
+?>
+<form action="<? echo $modify; ?>" method="post" name="myForm">
+
+<div class="tbl_detail">
+<table>
+	<col width="10%">
+	<col width="60%">
+	<col width="17%">
+	<col width="13%">
+	<tr>
+		<input type="hidden" name="layer" value="0">
+		<th>
+			<?php echo selectwords($connect, $_SESSION['lang'], a0092)?>
+		</th> 
+		<td colspan="5" style="height:30px;">
+			<input type="text" name="title"  style="width:98%" value="<?php echo $title; ?>" >
+		</td>
+	</tr>
+
+	<tr>
+		<th>
+			<?php echo selectwords($connect, $_SESSION['lang'], a0093)?>
+		</th>
+		<td colspan="5" style="height:400px;">
+			<TEXTAREA name="contents" style="width:98%;height:95%" ROWS=20 COLS=80><?php echo $contents; ?></TEXTAREA>
+
+		</td>
+	</tr>
+</table>
+</div>
+
+<br>
+<div align="center">
+	<table>
+		<tr>
+			<td>
+				<!--<input type=submit class="btn_gtBlue w70" value="<? echo selectwords($connect, $_SESSION['lang'], 'a0094'); ?>"> -->
+				<span class="btn_gtBlue"><a href='#' onclick="btn_submit()"><? echo selectwords($connect, $_SESSION['lang'], 'a0094'); ?></a></span><!--submit버튼-->	
+			</td>
+			<td>
+				<span class="btn_gtBlue"><A HREF="board.html"><? echo selectwords($connect, $_SESSION['lang'], 'a0023'); ?></A></span>
+			</td>
+		</tr>
+	</table>
+</div>
+</form>
+		
+</body>
+</html>

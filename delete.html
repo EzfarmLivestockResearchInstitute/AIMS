@@ -1,0 +1,113 @@
+<?php
+session_start();
+$id=$_SESSION['user_id'];
+
+
+if(!isset($_SESSION['lang']) OR empty($_SESSION['lang']) ){
+	$_SESSION['lang']=1;
+}
+
+$sessvar=$_SESSION['lang'];
+
+//언어함수
+function selectwords($connect, $langnum, $serialnum) {
+	$sql="select WORDS from languages where LANG=$langnum and SERIAL_NUM='$serialnum' ";
+	$result=mysqli_query($connect, $sql);
+	$img=mysqli_fetch_assoc($result);
+	$lang=$img['WORDS']; 
+	return $lang;
+}
+?>
+
+<? 
+	include('./connectdb.php'); 
+    $connect = dbconect();
+?>
+<? require "./config.php"; ?>
+
+<!DOCTIME html>
+<html>
+<head>
+
+<meta http-equiv="Content-Type" content="text/html" charset="utf-8">
+<link rel="stylesheet" type="text/css" href="./css/admin.css">
+<link rel="stylesheet" type="text/css" href="./css/button_admin.css">
+
+	<!-- Include jQuery and jQuery UI -->
+	<script src="//ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js" type="text/javascript"></script>
+	<script src="//ajax.googleapis.com/ajax/libs/jqueryui/1/jquery-ui.min.js" type="text/javascript"></script>
+	
+	<!-- Include Fancytree skin and library -->
+	<link href="./utility/fancytree/skin-win8/ui.fancytree.min.css" rel="stylesheet" type="text/css">
+	<script src="./utility/fancytree/jquery.fancytree-all.min.js" type="text/javascript"></script>
+	
+	<!-- css & bootstrap -->
+	<link rel="stylesheet" type="text/css" href="./css/my_style.css" />
+	<link rel="stylesheet" type="text/css" href="./css/bootstrap.min.css" />
+	<script type="text/javascript" src="./js/bootstrap/bootstrap.min.js"></script>
+	<!--- 추가 end -->
+
+	<script type="text/javascript">
+	function btn_submit(){
+		var myForm = document.myForm;
+		myForm.submit();
+	}
+
+	</script>
+</head>
+
+<body>
+
+<h2 align="center"><? echo selectwords($connect, $_SESSION['lang'], 'a0198'); ?><!--회원탈퇴하기--></h2><br>
+
+<?php
+
+	$con1 = dbconect();
+
+	// Check connection
+	if (mysqli_connect_errno()) {
+		echo "Failed to connect to MySQL: " . mysqli_connect_error();
+	}
+	$result = mysqli_query($con1,"SELECT * FROM regist where id='$id' ");
+	while($row = mysqli_fetch_array($result)) {
+
+?>
+<div class="tbl_detail">
+	<form method="post" action="delete.php">
+		<table width="100%">
+			<col width='20%'>
+			<col width='auto'>
+			<tbody>
+			<tr height="35px">
+				<th><?echo selectwords($connect, $_SESSION['lang'], 'a0014'); ?><!--아이디--></td>
+				<td><input name="id" type="text" ></td>
+			</tr>
+			<tr height="35px">
+				<th><?echo selectwords($connect, $_SESSION['lang'], 'a0177'); ?><!--이름--></td>
+				<td><input name="name" type="text" ></td>
+			</tr>
+			<tr height="35px">
+				<th><?echo selectwords($connect, $_SESSION['lang'], 'a0015'); ?><!--비밀번호--></td>
+				<td><input name="pass1" type="password" value="<?=$pass1?>"></td>
+			</tr>
+			<tr height="35px">
+				<th><?echo selectwords($connect, $_SESSION['lang'], 'a0176'); ?><!--이메일 --></td>
+				<td>
+					<input name="email" type="text" >
+					<span class="btn_gtBlue w80">
+						<a href='#' onclick="btn_submit()">
+							<? echo selectwords($connect, $_SESSION['lang'], 'a0199'); ?><!--회원탈퇴-->
+						</a>
+					</span>
+				</td>
+			</tr>
+		</table>
+	</form>
+</div>
+<?
+	}
+	mysqli_close($con1);
+?>
+
+</body>
+</html>

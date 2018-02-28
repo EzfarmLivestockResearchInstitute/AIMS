@@ -1,0 +1,435 @@
+﻿<? 
+session_start();
+ 
+if(!isset($_SESSION['lang']) OR empty($_SESSION['lang']) ){
+	$_SESSION['lang']=1;
+}
+
+if ( !isset($_SESSION['user_id']) OR empty($_SESSION['user_id']) ){
+		echo "
+		<script type=\"text/javascript\">
+			window.location.href = '/index.html';
+		</script>
+	"; 
+}
+/*
+if(!isset($_SESSION['psw']) OR empty($_SESSION['psw']) ){
+		echo "
+		<script type=\"text/javascript\">
+			window.location.href = '/index.html';
+		</script>
+	"; 
+}
+*/
+//언어함수
+function selectwords($connect, $langnum, $serialnum) {
+	$sql="select WORDS from languages where LANG=$langnum and SERIAL_NUM='$serialnum' ";
+	$result=mysqli_query($connect, $sql);
+	$img=mysqli_fetch_assoc($result);
+	$lang=$img['WORDS']; 
+	return $lang;
+}
+
+//% DB 연결
+include('./connectdb.php'); 
+$connect = dbconect();
+
+if(!$connect) die("DB 접속 실패: " .mysql_error());
+
+?>
+
+<!DOCTIME html>
+<html >
+<head>
+<meta charset="utf-8">
+<title> M-AIMS Send Mail </title>
+<!------------------------------------------------------------------------------------------------->
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+		
+		<!-- Include jQuery and jQuery UI -->
+		<script src="//ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js" type="text/javascript"></script>
+		<script src="//ajax.googleapis.com/ajax/libs/jqueryui/1/jquery-ui.min.js" type="text/javascript"></script>
+
+		<!-- #CSS Links -->
+		<!-- 부트스트랩 -->
+		<link rel="stylesheet" type="text/css" href="./css/bootstrap.min.css" />
+		<script type="text/javascript" src="./js/bootstrap/bootstrap.min.js"></script>
+		<link rel="stylesheet" type="text/css" media="screen" href="./css/font-awesome.min.css"><!--left menu앞 & 기타 메뉴아이콘-->
+
+		<!-- SmartAdmin Styles : Caution! DO NOT change the order --> 
+		<link rel="stylesheet" type="text/css" href="./css/smartadmin-production.min.css" /> 
+		<link rel="stylesheet" type="text/css" href="./css/smartadmin-production-plugins.min.css" />
+		<link rel="stylesheet" type="text/css" href="./css/smartadmin-skins.min.css" /> 
+	
+		
+		<!-- Link to Google CDN's jQuery + jQueryUI; fall back to local 
+		<script src="js/libs/jquery-2.1.1.min.js" type="text/javascript"></script>
+		<script src="js/libs/jquery-ui-1.10.3.min.js" type="text/javascript"></script>  
+		-->
+
+		<!-- DataTable -->
+		<link rel="stylesheet" type="text/css" href="./css/jquery.dataTables.min.css" />
+		<script type="text/javascript" src="./js/plugin/datatables/jquery.dataTables.min.js"></script>
+
+	  
+		<!-- JARVIS WIDGETS -->
+		<script type="text/javascript" src="./js/smartwidgets/jarvis.widget.min.js"></script>
+
+		<!-- 추가스타일 -->
+		<link rel="stylesheet" type="text/css" href="./css/my_style.css" />
+
+
+		<!--[if lt IE 9]>
+		  <script src="https://oss.maxcdn.com/html5 shiv/3.7.2/html5shiv.min.js"></script> 
+		  <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+		<![endif]-->
+<!------------------------------------------------------------------------------------------------->
+
+<link rel="stylesheet" type="text/css" href="./css/admin.css">
+<link rel="stylesheet" type="text/css" href="./css/button_admin.css">
+
+
+
+<!-- Include Fancytree skin and library -->
+<link href="utility/fancytree/skin-win8/ui.fancytree.min.css" rel="stylesheet" type="text/css">
+<script src="/utility/fancytree/jquery.fancytree-all.min.js" type="text/javascript"></script>
+<!--
+<script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
+-->
+<script>
+function digclock(){
+	var curdate = new Date()
+	var dstr = curdate.toLocaleDateString()
+	var tstr = curdate.toLocaleTimeString()
+	var dtstr = dstr+"&nbsp;"+tstr
+	document.getElementById("clock").innerHTML = dtstr
+}
+setInterval(function(){digclock()},1000)
+</script>
+
+<script type="text/javascript">
+var sURL = unescape(window.location.pathname);// 현재의 페이지를 언어만 변경 후 다시 열기
+
+//언어 변경 합수 
+function changeLang(lang){
+	$.ajaxSetup({async:false});//동기식으로 지정
+	var param={lang:lang};
+	$.get("changelangsession.php", param, refreshpage);
+	// param을 넘겨 서버측 php 파일 실행 후  클라이언트 측 함수 refresshpage 실행하여라. 
+}; 
+
+function refreshpage(strText){
+	//alert("parsed data: " + strText);
+    window.location.href = sURL;// refresh page
+}
+</script>
+
+
+   <style type="text/css">
+		#tree {
+			vertical-align: top;
+			width: 250px;
+		}
+		iframe {
+			border: 1px dotted gray;
+		}
+	</style>
+	
+	<!-- Add code to initialize the tree when the document is loaded: -->
+	<script type="text/javascript">
+	$(function(){
+		// Attach the dynatree widget to an existing <div id="tree"> element
+		// and pass the tree options as an argument to the dynatree() function:
+		$("#tree").fancytree({
+//          autoCollapse: true,
+			minExpandLevel: 1,
+			postinit: function(isReloading, isError) {
+				this.reactivate();
+			},
+			focus: function(event, data) {
+				// Auto-activate focused node after 2 seconds
+				data.node.scheduleAction("activate", 2000);
+			},
+			activate: function(event, data) {
+				var node = data.node;
+				// Use <a> href and target attributes to load the content:
+				if( node.data.href ){
+					// Open target
+					window.open(node.data.href, node.data.target);
+					// or open target in iframe
+//                $("[name=contentFrame]").attr("src", node.data.href);
+				}
+			}
+		});
+	});
+	
+	function FNC_ChgSite(value) {
+		if (value!=''){
+			window.open(value, "", "width=800, height=700, toolbar=yes, menubar=yes, scrollbars=yes, resizable=yes" );
+		}
+	}		
+	</script>
+</head>
+
+
+
+<body>
+<!-- #HEADER -->
+
+		<!-- 크기가 lg일때 start -->
+		<header id="header" class="visible-lg visible-md hidden-sm hidden-xs">
+
+			<div id="logo-group">
+				<ul>
+					<li><a href="http://qia.go.kr" style="image-decoration: none"><img src="/images/logo_top.png" alt="농림축산검역본부" height="40px;" /></a></li>
+					<li><img src="./images/logo.png" alt="몽고 로고" width="40px"  /></li>
+				</ul>
+			</div>
+
+			<div class="pull-right top_content">
+				<div class="pull-right">
+					<div><? require('./include/langSelect.php');  // 언어선택 버튼 ?></div>
+				</div>
+				<div class="pull-right top_con01">
+					<div><a href="./personalinformation.html"><font color="black"><? echo selectwords($connect, $_SESSION['lang'], 'a0027'); ?></font></a></div>
+					<div id="clock" style="color:#a89ee9; font-size: 9pt;" style="line-height:12em">?</div><!--시계-->
+				</div>
+				<div class="pull-right top_con02">
+					<!--이 로그인 하셨습니다 -->
+					<? echo $_SESSION['user_name'] ?><? echo selectwords($connect, $_SESSION['lang'], 'a0026'); ?>
+					<!--로그아웃-->
+					<a href="logout.php">
+						<img src="./images/btn_logout.png" alt="로그아웃" >
+					</a>	
+				</div>
+			</div>
+			
+			<div class="top_bluebar"><a href="./index.html" ><font color="#FFFFFF"><? echo selectwords($connect, $_SESSION['lang'], 'a0003'); ?></font></a></div>
+
+		</header>
+		<!-- 크기가 lg일때 end -->
+
+		<!-- 크기가 sm일때[768보다 크고 992보다 작을때] start -->
+		<header id="header" class="hidden-lg hidden-md visible-sm hidden-xs">
+
+			<div id="logo-group">
+				<ul>
+					<li><a href="http://qia.go.kr" style="image-decoration: none"><img src="./images/logo_top.png" alt="농림축산검역본부" height="40px;" /></a></li>
+					<li><img src="./images/logo.png" alt="몽고 로고" width="40px"  /></li>
+				</ul>
+			</div>
+
+			<div class="pull-right top_content">
+				<div id="hide-menu" class="btn-header pull-right"><span> <a href="javascript:void(0);" data-action="toggleMenu" title="Collapse Menu"><i class="fa fa-reorder"></i></a> </span></div>
+				<div class="pull-right">
+					<div><? require('./include/langSelect.php');  // 언어선택 버튼 ?></div>
+				</div>
+				<div class="pull-right top_con01sm">
+					<div><a href="./personalinformation.html"><font color="black"><? echo selectwords($connect, $_SESSION['lang'], 'a0027'); ?></font></a></div>
+				</div>
+				<div class="pull-right top_con02sm">
+					<!--이 로그인 하셨습니다 -->
+					<? echo $_SESSION['user_name'] ?><? echo selectwords($connect, $_SESSION['lang'], 'a0026'); ?>
+					<!--로그아웃--><br>
+					<a href="./logout.php">
+						<img src="./images/btn_logout.png" alt="로그아웃" >
+					</a>	
+				</div>
+			</div>
+			
+			<div class="top_bluebar"><a href="./index.html" ><font color="#FFFFFF"><? echo selectwords($connect, $_SESSION['lang'], 'a0003'); ?></font></a></div>
+
+		</header>
+		<!-- 크기가 sm일때 end -->
+
+		<!-- 크기가 xs일때 start -->
+		<header id="header" class="hidden-lg hidden-md hidden-sm visible-xs">
+
+			<div id="logo-group">
+				<ul>
+					<li><a href="http://qia.go.kr" style="image-decoration: none"><img src="./images/logo_top.png" alt="농림축산검역본부" height="40px;" /></a></li>
+					<li><img src="./images/logo.png" alt="몽고 로고" width="40px"  /></li>
+				</ul>
+			</div>
+
+			<div class="pull-right top_content">
+				<div id="hide-menu" class="btn-header pull-right"><span> <a href="javascript:void(0);" data-action="toggleMenu" title="Collapse Menu"><i class="fa fa-reorder"></i></a> </span></div>
+				<div class="pull-right">
+					<div><? require('./include/langSelect.php');  // 언어선택 버튼 ?></div>
+				</div>
+			</div>
+
+			<div class="pull-right top_content  col-xs-12 col-sm-6 col-md-6 col-lg-6">
+				<div class="pull-right top_con01xs col-xs-12 col-sm-6 col-md-6 col-lg-6">
+					<div><a href="./personalinformation.html"><font color="black"><? echo selectwords($connect, $_SESSION['lang'], 'a0027'); ?></font></a></div>
+				</div>
+				<div class="pull-right top_con02xs col-xs-12 col-sm-6 col-md-6 col-lg-6">
+					<!--이 로그인 하셨습니다 -->
+					<? echo $_SESSION['user_name'] ?><? echo selectwords($connect, $_SESSION['lang'], 'a0026'); ?>
+					<!--로그아웃-->
+					<a href="./logout.php">
+						<img src="./images/btn_logout.png" alt="로그아웃" >
+					</a>	
+				</div>
+			</div>
+			
+			<div class="top_bluebar"><a href="./index.html" ><font color="#FFFFFF"><? echo selectwords($connect, $_SESSION['lang'], 'a0003'); ?></font></a></div>
+			<!--<div class="top_bluebar">몽골 동물질병 발생 자료관리 시스템 (M-AIMS)</div>-->
+
+		</header>
+
+		<!-- END HEADER -->
+		<!-- 크기가 xs일때 end -->
+
+
+<div id="main" role="main" style="margin-left:auto;margin-right:auto;">
+	<div id="content">
+		<div style="width:100%;">
+			<h1 align="center" style="font-size:14px;font-weight: bold;"><? echo selectwords($connect, $_SESSION['lang'], 'a0007'); ?></h1>
+			<form action="ajax_sendmail01.php" method="post">
+			<div class="board_detail">
+				<table>
+					<col width="20%">
+					<col width="80%">
+					<tbody>
+						<tr>
+							<th>
+								<? echo selectwords($connect, $_SESSION['lang'], 'a0090'); ?>
+							</th>
+							<td>
+								<input type="text" name="mail_from"  style="width:98%;">
+							</td>
+						</tr>
+						<tr>
+							<th>
+								<? echo selectwords($connect, $_SESSION['lang'], 'a0091'); ?>
+							</th>
+							<td>
+								<input type="text" name="from_name"  style="width:98%;">
+							</td>
+						</tr>
+						<tr>
+							<th>
+								<? echo selectwords($connect, $_SESSION['lang'], 'a0092'); ?>
+							</th>
+							<td>
+								<input type="text" name="subject"  style="width:98%;">
+							</td>
+						</tr>
+						<tr>
+							<th>
+								<? echo selectwords($connect, $_SESSION['lang'], 'a0093'); ?>
+							</th>
+							<td colspan="5" style="height:400px;">
+							<!input type="text" name="contents" style="width:1000px; height:500px;">	
+							<TEXTAREA name="contents" style="width:98%;height:95%" cols="150" rows="20"> </TEXTAREA> 
+							</td>
+						</tr>
+				</table>
+				</tbody>
+			</div>
+			<br>
+			<div align="center">	
+				<table>
+					<tr>
+						<td>
+							<input class="btn btn-primary" type=submit value="<? echo selectwords($connect, $_SESSION['lang'], 'a0094'); ?>"><!--submit버튼--> 
+						</td>
+					</tr>
+				</table>
+			</div>	
+			</form>
+		
+		</div>
+	</div>
+</div>
+
+<!-- PAGE FOOTER -->
+
+<div class="page-footer sub_footer">
+	<div id="footer" style="width:100%;">
+		<div class="col-xs-12 col-sm-4 col-md-4 col-lg-4"><img src="/images/footlogo.png"></div>
+		<div class="copy_r col-xs-12 col-sm-4 col-md-4 col-lg-4"><font style="font-size:9px;text-align:center;">COPTRIGHT © ANIMAL AND PLANT QUARANTINE AGENCY ALL RIGHTS RESERVEO. </font></div>
+		<div class="site_go col-xs-12 col-sm-4 col-md-4 col-lg-4">
+			<b>관련기관 바로가기</b>
+			<select title="관련기관 바로가기 선택" class="w_140" id="targetSelect1" onChange='javascript:FNC_ChgSite(this.value);'>
+				<option value="">관련기관 사이트</option>
+				<option value="http://qia.go.kr/">농림축산검역본부</option>
+				<option value="http://kahis.go.kr/home/lkntscrinfo/selectLkntsStats.do">법정가축전염병 발생통계</option>
+				<option value="http://www.kahis.go.kr/home/lkntscrinfo/selectLkntsOccrrncList.do?openFlag=Y">법정가축전염병 발생현황</option>
+			</select>	
+		</div>
+	</div> 
+</div>
+
+<!-- END PAGE FOOTER -->
+	
+	<!--===================
+		
+		아래영역은 footer 에 들어갈 소스입니다.
+
+		만약 건들시에는 부트고 나발이고 스트랩이고 기능이 적용이 않될겁니다.
+
+		참고하시고 해당담당자에게 문의하세요...
+		
+		====================-->
+
+		<!-- IMPORTANT: APP CONFIG -->
+		<script src="./js/app.config.js"></script>
+		<!-- MAIN APP JS FILE -->
+		<script src="./js/app.min.js"></script>
+
+		<!-- PAGE RELATED PLUGIN(S) 
+		<script src="..."></script>-->
+
+		<script type="text/javascript">
+		
+		// DO NOT REMOVE : GLOBAL FUNCTIONS!
+		
+		$(document).ready(function() {
+			
+			pageSetUp();
+			
+
+				$('#dt_basic01').DataTable(
+				 {
+					"searching"		: false,  
+					"lengthChange"	: false,
+					"paging"		: false,
+				/*	"ordering"		: false,  */
+					"processing"	: false,
+					"info"			: false
+				 }
+				 );
+
+	
+			$('#dt_basic02').DataTable(
+				 {
+				    "searching"		: false,  
+					"lengthChange"	: false,
+					"paging"		: false,
+				/*	"ordering"		: false,  */
+					"processing"	: false,
+					"info"			: false
+				 }
+				 );
+
+			$('#dt_basic03').DataTable(
+				 {
+				    "searching"		: false,  
+					"lengthChange"	: false,
+					"paging"		: false,
+				/*	"ordering"		: false,  */
+					"processing"	: false,
+					"info"			: false
+				 }
+				 );
+			
+		
+		})
+
+		</script>
+
+</body>
+
+</html>

@@ -1,0 +1,460 @@
+<?PHP
+$mail=$_GET['mailadd'];
+?>
+<?php
+session_start();
+$id=$_SESSION['user_id'];
+
+
+if(!isset($_SESSION['lang']) OR empty($_SESSION['lang']) ){
+	$_SESSION['lang']=1;
+}
+
+$sessvar=$_SESSION['lang'];
+
+//언어함수
+function selectwords($connect, $langnum, $serialnum) {
+	$sql="select WORDS from languages where LANG=$langnum and SERIAL_NUM='$serialnum' ";
+	$result=mysqli_query($connect, $sql);
+	$img=mysqli_fetch_assoc($result);
+	$lang=$img['WORDS']; 
+	return $lang;
+}
+?>
+
+<? require "connectdb.php"; ?>
+<? require "config.php"; ?>
+
+<!DOCTIME html>
+<html>
+<head>
+
+<meta http-equiv="Content-Type" content="text/html" charset="utf-8">
+<link rel="stylesheet" type="text/css" href="css/mystyle.css">
+<style type="text/css">a {text-decoration: none}</style>
+
+	<!-- Include jQuery and jQuery UI -->
+	<script src="//ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js" type="text/javascript"></script>
+	<script src="//ajax.googleapis.com/ajax/libs/jqueryui/1/jquery-ui.min.js" type="text/javascript"></script>
+	
+	<!-- Include Fancytree skin and library -->
+	<link href="utility/fancytree/skin-win8/ui.fancytree.min.css" rel="stylesheet" type="text/css">
+	<script src="/utility/fancytree/jquery.fancytree-all.min.js" type="text/javascript"></script>
+
+<script>
+function digclock(){
+	var curdate = new Date()
+	var dstr = curdate.toLocaleDateString()
+	var tstr = curdate.toLocaleTimeString()
+	var dtstr = dstr+"&nbsp;"+tstr
+	document.getElementById("clock").innerHTML = dtstr
+}
+setInterval(function(){digclock()},1000)
+</script>
+
+<script type="text/javascript">
+var sURL = unescape(window.location.pathname);// 현재의 페이지를 언어만 변경 후 다시 열기
+
+//언어 변경 함수 
+function changeLang(lang){
+	$.ajaxSetup({async:false});//동기식으로 지정
+	var param={lang:lang};
+	$.get("changelangsession.php", param, refreshpage);
+	// param을 넘겨 서버측 php 파일 실행 후  클라이언트 측 함수 refresshpage 실행하여라. 
+}; 
+
+function refreshpage(strText){
+	//alert("parsed data: " + strText);
+    window.location.href = sURL;// refresh page
+}
+</script>
+
+ <style type="text/css">
+		#tree {
+			vertical-align: top;
+			width: 250px;
+		}
+		iframe {
+			border: 1px dotted gray;
+		}
+</style>
+	
+<!-- Add code to initialize the tree when the document is loaded: -->
+	<script type="text/javascript">
+	$(function(){
+		// Attach the dynatree widget to an existing <div id="tree"> element
+		// and pass the tree options as an argument to the dynatree() function:
+		$("#tree").fancytree({
+//          autoCollapse: true,
+			minExpandLevel: 1,
+			postinit: function(isReloading, isError) {
+				this.reactivate();
+			},
+			focus: function(event, data) {
+				// Auto-activate focused node after 2 seconds
+				data.node.scheduleAction("activate", 2000);
+			},
+			activate: function(event, data) {
+				var node = data.node;
+				// Use <a> href and target attributes to load the content:
+				if( node.data.href ){
+					// Open target
+					window.open(node.data.href, node.data.target);
+					// or open target in iframe
+//                $("[name=contentFrame]").attr("src", node.data.href);
+				}
+			}
+		});
+	});
+	</script>
+</head>
+
+<body>
+<!--div id="pagesize0" style="width: 1300; float: left;"-->
+<div id="header"> <!-- 첫번째줄: 농축산겸역본부, 몽고 로고, 언어 선택 버튼 ----------------- -->
+<table class="fixed">
+	
+	<col width="192px" />
+	<col width="400px" />
+	<col width="400px" />
+	<col width="240px" />
+	
+	<tr>
+		<td>
+		</td>
+		
+		<td><a href="http://m-aims.net" >
+			<!--몽골 동물질병 발생 자료관리 시스템 (M-AIMS) -->
+			<div id="maims"
+			id="block1" style="
+				float:right;
+				border :1px solid navy;
+				width : 320px;
+				height: 45px; 
+				background-color:#6fafd2;
+				color:#000;
+				font-family: Verdana, sans-serif;
+				text-align: center;
+				vertical-align: sub;
+				padding:10px;"
+			>   
+				<font color="black"><? echo selectwords($connect, $_SESSION['lang'], 'a0003'); ?></font>
+			</div>
+			</a>
+		</td>
+		
+		<td>
+			<div style="line-height:0.7em"><br></div>
+			<!--관리자님이 로그인 하셨습니다 -->
+			<div id="block1" style="
+				float:left;
+				border :1px solid navy;
+				width : 320px;
+				background-color:#6fafd2;
+				color:#000;
+				font-family: Verdana, sans-serif;
+				font-size:80%;
+				text-align: center;
+				padding:1px;
+				">
+			<font color="black"><? echo selectwords($connect, $_SESSION['lang'], 'a0026'); ?></font> <!--관리자님이 로그인 하셨습니다. -->
+			</div>
+			<br>
+			
+			<!--개인정보관리-->
+			<A HREF="personalinformation.html">
+			<div style="line-height:0.1em"><br></div>
+			<div id="block2" style="
+				float:left;
+				border :1px solid navy;
+				width : 320px;
+				background-color:#6fafd2;
+				color:#000;
+				font-family: Verdana, sans-serif;
+				font-size:80%;
+				text-align: center;
+				padding:1px;"
+			>
+				<font color="black"> <? echo selectwords($connect, $_SESSION['lang'], 'a0027'); ?></font>
+			</div>
+			</A> 
+			<br>
+
+
+			<!--로그아웃-->
+			<div style="line-height:0.1em"><br></div>
+			<div
+				id="block3" 
+				style="
+					width : 120px;
+					float:left; 
+					color:#000;
+					
+			
+			>
+				<div 
+					id="block3" 
+					style="
+						float:left; 
+						border :1px solid navy;
+						width : 120px;
+						background-color:#327ba3;
+						color:#000;
+						font-family: Verdana, sans-serif;
+						font-size:80%;
+						text-align: center;
+						padding:1px;"
+				>
+				&nbsp;
+				</div>
+							
+				<div 
+					id="block4" 
+					style=" 
+						float:left; 
+						border :1px solid navy;
+						width : 80px;
+						background-color:#327ba3;
+						color:#000;
+						font-family: Verdana, sans-serif;
+						font-size:80%;
+						text-align: center;
+						padding:1px;"
+				>
+					<A HREF="logout.php">
+						<font color="black">
+							<? 
+								echo selectwords($connect, $_SESSION['lang'], 'a0019'); 
+							?>	
+						</font> 
+					</A> <!--로그아웃-->
+				</div>
+			</div>
+
+			
+		</td>
+		
+		<td align="right">	
+		<div style="line-height:0.9em"><br></div>
+		<div>	
+		<? require('include/langSelect.php');  // 언어선택 버튼 ?> 
+			<div style="line-height:0.1em"><br></div>
+			<div id="clock" style="color:#a89ee9;font-size: 9pt;style="line-height:12em"">?</div><!--시계-->
+		</div>		
+		</td>
+
+	</tr>
+</table>
+
+</div>
+
+<div style="line-height:0.3em"><br></div>
+
+<div>
+	<div
+		id="block4" 
+		style=" 
+			float:left; 
+			border :1px solid navy;
+			width : 255px;
+			height: 40px;
+			background-color:#FFFFFF;
+			border-color: #FFFFFF;
+			color:#FFFFFF;
+			padding:1px;
+		"
+	>
+		<span id="a"></span>&nbsp;
+	</div>
+	
+	<div
+		id="block4" 
+		style=" 
+			float:left; 
+			text-align: center;
+			border :1px solid navy;
+			width : 80px;
+			height: 28px;
+			background-color:#F0F0F0;
+			border-color: #909090;
+			font-size:80%;
+			color:#000;
+			padding:5px;
+		"
+	>		
+		<span id="a"><? echo selectwords($connect, $_SESSION['lang'], 'a0031'); ?></span><!--전체메뉴보기-->
+	</div>
+	
+	<div id="block4" style="float:left; width: 4px;">&nbsp;</div>
+
+	<div
+		id="block4" 
+		style=" 
+			float:left; 
+			text-align: center;
+			border :1px solid navy;
+			width : 80px;
+			height: 28px;
+			background-color:#F0F0F0;
+			border-color: #909090;
+			font-size:80%;
+			color:#000;
+			padding:5px;
+		"
+	>		
+		<span id="a"><? echo selectwords($connect, $_SESSION['lang'], 'a0032'); ?></span><!--나의맞춤메뉴보기-->
+	</div>
+	
+	<div id="block4" style="float:left; width: 4px;">&nbsp;</div>
+	
+	<div
+		id="block4" 
+		style=" 
+			float:left; 
+			border :0px solid navy;
+			height: 40px;
+			background-color:#FFFFFF;
+			color:#000;
+			padding:1px;
+		"
+	>
+		
+		<a href="http://qia.go.kr" style="image-decoration: none"><!--농림축산검역본부 로고-->
+		<img class="banner" src="./images/animal.png" alt="<? echo selectwords($connect, $_SESSION['lang'], 'a0001'); ?>" height="40"/></a>
+	</div>
+
+	<div id="block4" style="float:left; width: 4px;">&nbsp;</div>
+	
+	<div
+		id="block4" 
+		style=" 
+			float:left; 
+			border :0px solid navy;
+			height: 40px;
+			background-color:#FFFFFF;
+			color:#000;
+			padding:1px;
+		"
+	>
+		<a href="http://kahis.go.kr/home/lkntscrinfo/selectLkntsStats.do"><img class="banner" src="kahis01.png" alt="<? echo selectwords($connect, $_SESSION['lang'], 'a0004'); ?>" height="40"/></a><!--KAHIS 1 로고-->
+	</div>
+
+	<div id="block4" style="float:left; width: 4px;">&nbsp;</div>
+	
+	<div
+		id="block4" 
+		style=" 
+			float:left; 
+			border :0px solid navy;
+			height: 40px;
+			background-color:#FFFFFF;
+			color:#000;
+			padding:1px;
+		"
+	>
+		<a href="http://www.kahis.go.kr/home/lkntscrinfo/selectLkntsOccrrncList.do?openFlag=Y"><img class="banner" src="kahis02.png" alt="<? echo selectwords($connect, $_SESSION['lang'], 'a0005'); ?>" height="40"/></a><!--KAHIS 2 로고-->
+	</div>
+
+	<div id="block4" style="float:left; width: 4px;">&nbsp;</div>
+	
+	<div
+		id="block4" 
+		style=" 
+			float:left; 
+			border :0px solid navy;
+			height: 40px;
+			background-color:#FFFFFF;
+			color:#000;
+			padding:1px;
+		"
+	>
+		<img class="logo" src="logo.png" alt="<? echo selectwords($connect, $_SESSION['lang'], 'a0002'); ?>" height="40"/><!--몽고 로고-->
+	</div>
+
+	<div id="block4" style="float:left; width: 4px;">&nbsp;</div>
+	
+	<div
+		id="block4" 
+		style=" 
+			float:left; 
+			text-align: center;
+			border :1px solid navy;
+			width : 120px;
+			height: 28px;
+			background-color:#F0F0F0;
+			border-color: #909090;
+			font-size:80%;
+			color:#000;
+			padding:5px;
+		"
+	>
+		<span id="a"><? echo selectwords($connect, $_SESSION['lang'], 'a0033'); ?></span><!--사용설명서 내려받기 -->
+	</div>
+
+</div>
+
+<p>&nbsp;  </p>
+
+<h2><? echo selectwords($connect, $_SESSION['lang'], 'a0183'); ?><!--이메일 변경--></h2><br>
+
+
+<form method="post" action="modify_email.php">
+<table width="500" border="0" cellspacing="1" cellpadding="2">
+<tr>
+<td width="150"><? echo selectwords($connect, $_SESSION['lang'], 'a0186'); ?><!--변경할 이메일--></td>
+<td><? echo $mail ?><input type="hidden" name="mailadd"  value='<? echo $mail; ?>'></td>
+</tr>
+<tr>
+<td width="150"><? echo selectwords($connect, $_SESSION['lang'], 'a0014'); ?><!--아이디--></td>
+<td><input name="id" type="text"></td>
+</tr>
+<tr>
+<td width="150"><? echo selectwords($connect, $_SESSION['lang'], 'a0015'); ?><!--비밀번호--></td>
+<td>
+	<input name="pass1" type="password" >
+</td>
+</tr>
+<tr>
+<td width="100"> </td>
+<td>
+<input name="update" type="submit" value="<? echo selectwords($connect, $_SESSION['lang'], 'a0178'); ?>"<!--변경하기-->
+</td>
+</tr>
+</table>
+</form>
+
+
+<br>
+<br>
+<br>
+
+<div id="section">
+<table>
+<col width="800px" />
+<tr>
+<td align="left">
+	<? echo selectwords($connect, $_SESSION['lang'], 'a0006'); ?> <!-- 관리자 --> 031-xxx-xxxx 
+&nbsp;&nbsp;&nbsp;
+</td>
+</tr>
+</table>
+</div>
+
+
+<div id="footer">
+<table>
+<col width="800px" />
+<tr>
+<td align="right">
+<font color="white"><? echo selectwords($connect, $_SESSION['lang'], 'a0008'); ?> </font>
+<!-- 카피라이트  -->
+</td>
+</tr>
+</table>
+</div>
+
+</body>
+</html>
+
+
+

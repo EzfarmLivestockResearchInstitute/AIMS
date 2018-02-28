@@ -1,0 +1,73 @@
+<? 
+session_start();
+ 
+if(!isset($_SESSION['lang']) OR empty($_SESSION['lang']) ){
+	$_SESSION['lang']=1;
+}
+
+
+if ( !isset($_SESSION['user_id']) OR empty($_SESSION['user_id']) ){
+		echo "
+		<script type=\"text/javascript\">
+			window.location.href = '/index.html';
+		</script>
+	"; 
+}
+/*
+if(!isset($_SESSION['psw']) OR empty($_SESSION['psw']) ){
+		echo "
+		<script type=\"text/javascript\">
+			window.location.href = '/index.html';
+		</script>
+	"; 
+}
+*/
+//언어함수
+function selectwords($connect, $langnum, $serialnum) {
+	$sql="select WORDS from languages where LANG=$langnum and SERIAL_NUM='$serialnum' ";
+	$result=mysqli_query($connect, $sql);
+	$img=mysqli_fetch_assoc($result);
+	$lang=$img['WORDS']; 
+	return $lang;
+}
+
+//% DB 연결
+include('connectdb.php'); 
+$connect = dbconect();
+
+if(!$connect)
+	die("DB 접속 실패: " .mysql_error());
+//else
+//	echo "Successful!";
+
+?>
+
+<?
+    $hostname = exec("/home/bin/hostname");
+?>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html" charset="utf-8">
+
+<link rel="stylesheet" type="text/css" href="./css/admin.css">
+<link rel="stylesheet" type="text/css" href="./css/button_admin.css">
+
+</head>
+<body>
+
+
+
+
+
+<br>
+<b>&nbsp; &nbsp; <? echo selectwords($connect, $_SESSION['lang'], 'a0169'); ?> </b>
+<br><br>
+&nbsp; &nbsp;<A HREF="registerapprovalstandby.php" style="text-decoration: none;"> <? echo selectwords($connect, $_SESSION['lang'], 'a0170'); ?> </A>
+<br><br>
+&nbsp; &nbsp;<A HREF="registerapproval.php" style="text-decoration: none;"> <? echo selectwords($connect, $_SESSION['lang'], 'a0171'); ?> </A>
+<br><br>
+&nbsp; &nbsp; <A HREF="registerapprovalcancel.php" style="text-decoration: none;"> <? echo selectwords($connect, $_SESSION['lang'], 'a0172'); ?> </A>
+<br><br>
+&nbsp; &nbsp; <A HREF="registerAdminauth.php" style="text-decoration: none;"> <? echo selectwords($connect, $_SESSION['lang'], 'a0246'); ?> </A>
+</body>
+</html>

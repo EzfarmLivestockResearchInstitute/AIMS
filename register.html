@@ -1,0 +1,208 @@
+﻿<?PHP
+$mail=$_GET['mailadd'];
+?>
+
+<?php
+session_start();
+
+	require('./include/sessvarSetting.php' );
+	require('./include/langSetting.php');
+	//require('include/connectDB.php');
+?>
+
+<script type="text/javascript" src="./js/jquery.min.js"> </script>
+<script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
+
+
+
+<? 
+include('connectdb.php'); 
+$connect = dbconect();
+?>
+<? require "config.php"; ?>
+
+
+
+
+<!DOCTIME html>
+
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html" charset="utf-8">
+	<title>M-Aims System</title>
+	<link rel="stylesheet" type="text/css" href="mystyle.css">
+	<style type="text/css">a {text-decoration: none}</style>
+	<script type="text/javascript">
+	var sURL = unescape(window.location.pathname);// 현재의 페이지를 언어만 변경 후 다시 열기
+
+	//언어 변경 함수 
+	function changeLang(lang){
+	$.ajaxSetup({async:false});//동기식으로 지정
+	var param={lang:lang};
+	$.get("changelangsession.php", param, refreshpage);
+	// param을 넘겨 서버측 php 파일 실행 후  클라이언트 측 함수 refresshpage 실행하여라. 
+	}; 
+
+	function refreshpage(strText){
+	//alert("parsed data: " + strText);
+    window.location.href = sURL + "?mailadd=" + '<? echo $mail ?>';// refresh page
+	}
+	</script>
+</head>
+
+
+<body>
+<div id="pagesize" style="width:820px; float: left;">
+<div id="header">
+<!-- 첫번째줄: 농축산겸역본부, 몽고 로고, 언어 선택 버튼 ----------------- -->
+<table class="fixed">
+ <col width="200px" />
+ <col width="460px" />
+ <col width="60px" />
+ <col width="10px" /> 
+ <col width="70px" />
+<tr>
+<td>
+	<a href="http://qia.go.kr" >
+		<img class="banner" src="./images/animal.png" alt="<? echo selectwords($connect, $_SESSION['lang'], 'a0001'); ?>" width="145" height="44" border="0" />
+	</a>
+</td>
+
+<td>
+	<div id="maims00" style="
+		float:center;
+		width:380px;
+		color:#FFFFFF;
+		font-family: Verdana, sans-serif;
+		text-align: center;
+		padding:1px;"
+	>
+		<? echo selectwords($connect, $_SESSION['lang'], 'a0003'); ?><!--몽골 동물질병 발생 자료관리 시스템 (M-AIMS)-->
+	</div>	
+</td>
+<td>	
+	<img class="logo" src="logo.png" alt="<? echo selectwords($connect, $_SESSION['lang'], 'a0002'); ?>" width="50" height="50"/>
+</td>
+<td>	
+</td>
+<td align="right">	
+<? 
+	require('include/langSelect.php'); // 언어선택 버튼
+?> 
+</td>
+</tr>
+</table>
+</div>
+
+<div id="height20px"></div>
+
+
+
+
+<p>&nbsp;</p>
+
+<div id="height21px" style="
+	float:center;
+	width:50px;
+	border :0px solid navy;
+	padding:0px;"
+>
+&nbsp;	
+</div>
+
+<h1><? echo selectwords($connect, $_SESSION['lang'], 'a0018'); ?><!-- 회원가입--></h1>
+<?
+	$con1 = dbconect();
+
+	// Check connection
+	if (mysqli_connect_errno()) {
+		echo "Failed to connect to MySQL: " . mysqli_connect_error();
+	}
+	$result = mysqli_query($con1,"SELECT * FROM regist where email = '$mail'");
+	while($row = mysqli_fetch_array($result)) {
+
+?>
+
+
+<form action="registerIDdupCheck.php" method="post">
+<table>
+<tr>
+<td><? echo selectwords($connect, $_SESSION['lang'], 'a0176'); ?><!--이메일 --></td> 
+<td><? echo $mail ?><input type="hidden" name="mailadd"  value='<? echo $mail; ?>'> </td>
+</tr>
+
+<tr>
+<td><? echo selectwords($connect, $_SESSION['lang'], 'a0177'); ?><!--이름 --></td>
+<td><?echo $row['name'];?></td>
+</tr>
+
+<tr>
+<td><? echo selectwords($connect, $_SESSION['lang'], 'a0014'); ?><!--아이디 --></td> 
+<td><input type="text" name="id"  style="width:140px;"></td>
+<td>
+	<? echo selectwords($connect, $_SESSION['lang'], 'a0201'); ?><!--첫 글자는 영문자로 나머지는 영문자 또는 숫자로 4-14자로 입력해주세요.(단, 특수문자 제외.) --></td>
+</tr>
+
+<tr>
+<td><? echo selectwords($connect, $_SESSION['lang'], 'a0015'); ?><!--비밀번호--></td>
+<td><input type="password" name="pass1"  style="width:140px;"></td>
+<td>
+	<? echo selectwords($connect, $_SESSION['lang'], 'a0190'); ?><!--비밀번호는 4-14자이며 특수문자, 숫자, 영문자를 적어도 하나 이샹 포함해야합니다.-->
+</td>
+</tr>
+<tr>
+<td><? echo selectwords($connect, $_SESSION['lang'], 'a0202'); ?><!--비밀번호 확인--> </td> 
+<td><input type="password" name="pass2" style="width:140px;"></td>
+</tr>
+
+<tr>
+<td><? echo selectwords($connect, $_SESSION['lang'], 'a0179'); ?><!--소속 --></td> 
+<td><input type="text" name="affiliation"  style="width:140px;"></td>
+</tr>
+
+<tr>
+<td><input type=submit value="<? echo selectwords($connect, $_SESSION['lang'], 'a0203'); ?>"<!--가입하기 --></td>
+</tr>
+
+</table>
+
+
+
+<?
+	}
+	mysqli_close($con1);
+?>
+</form>
+
+<div id="section">
+<table>
+<col width="800px" />
+<tr>
+<td align="left">
+	<? echo selectwords($connect, $_SESSION['lang'], 'a0006'); ?> <!-- 관리자 --> 031-xxx-xxxx 
+&nbsp;&nbsp;&nbsp;
+	<span id="a">
+	<A HREF="sendmail00.html"> <? echo selectwords($connect, $_SESSION['lang'], 'a0007'); ?> ▶</A><!-- 관리자에게 이메일 보내기 --></span>
+</td>
+</tr>
+</table>
+</div>
+
+
+<div id="footer">
+<table>
+<col width="800px" />
+<tr>
+<td align="right">
+<font color="white"><? echo selectwords($connect, $_SESSION['lang'], 'a0008'); ?> </font>
+<!-- 카피라이트  -->
+</td>
+</tr>
+</table>
+</div>
+
+</div>
+</body>
+</html>
+
+

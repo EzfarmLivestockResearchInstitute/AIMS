@@ -1,0 +1,122 @@
+<?php
+session_start();
+$id=$_SESSION['user_id'];
+
+
+if(!isset($_SESSION['lang']) OR empty($_SESSION['lang']) ){
+	$_SESSION['lang']=1;
+}
+
+$sessvar=$_SESSION['lang'];
+
+//언어함수
+function selectwords($connect, $langnum, $serialnum) {
+	$sql="select WORDS from languages where LANG=$langnum and SERIAL_NUM='$serialnum' ";
+	$result=mysqli_query($connect, $sql);
+	$img=mysqli_fetch_assoc($result);
+	$lang=$img['WORDS']; 
+	return $lang;
+}
+?>
+
+<? 
+	include('./connectdb.php'); 
+	$connect = dbconect();
+?>
+<? require "./config.php"; ?>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html" charset="utf-8">
+<script type="text/javascript">
+var sURL = unescape(window.location.pathname);// 현재의 페이지를 언어만 변경 후 다시 열기
+
+//언어 변경 함수 
+function changeLang(lang){
+	$.ajaxSetup({async:false});//동기식으로 지정
+	var param={lang:lang};
+	$.get("./changelangsession.php", param, refreshpage);
+	// param을 넘겨 서버측 php 파일 실행 후  클라이언트 측 함수 refresshpage 실행하여라. 
+}; 
+
+function refreshpage(strText){
+	//alert("parsed data: " + strText);
+    window.location.href = sURL;// refresh page
+}
+</script>
+</head>
+<body>
+
+<?php
+$con = dbconect();
+
+// Check connection
+if (mysqli_connect_errno()) {
+  echo "Failed to connect to MySQL: " . mysqli_connect_error();
+}
+
+$user_id =mysqli_real_escape_string($con, $_POST['id']);
+$user_email = mysqli_real_escape_string($con, $_POST['email']);
+
+$query="SELECT * FROM regist WHERE id='{$user_id}' AND email='{$user_email}'";
+$data=mysqli_query($con,$query);
+
+if(mysqli_num_rows($data)<1){//회원이 아닙니다!
+	echo "<script>
+	window.alert("."'".selectwords($connect, $sessvar, 'a0244')."'".");
+	history.go(-1);
+	</script>";
+	exit(1);  
+}
+
+include('./include/Sendmail.php');
+
+/* 클래스 객체 변수 선언 */ 
+$sendmail = new Sendmail();
+
+$to = "bigcoonta@naver.com"; //$_POST['email']; // 받는사람 메일주소 
+$from = "bigcoonta@gmail.com";
+$subj="[m-aims] This is an email from m-aims.net to change your password. Please click the link in the following.";
+$subject = '=?UTF-8?B?'.base64_encode($subj).'?='; 
+
+$message=" <a href='http://192.168.3.122/modify_newpa.html?idadd='".$user_id."'";
+$message.=" target='_top'>";
+$message.="байдлын таны нууц үгийг шинээр уу!<br>Please reset your password for security <br>비밀번호 새로 설정하기 <br /> </a>";
+
+$body =	"<br />"
+		."<br />"
+		.$message
+		."<br />"
+; 
+
+$cc_mail=""; 	// 참조
+$bcc_mail="";	// 숨은 참조
+
+
+if (!filter_var($_POST['email'], FILTER_VALIDATE_EMAIL)) {	//올바른 이메일 주소가 아닙니다.
+	echo "<script>
+	window.alert("."'".selectwords($con, $sessvar, 'a0219')."'".");
+	history.go(-1);
+	</script>";	
+	exit(1);  
+}
+
+/* 메일 보내기 */ 
+$sendmail->send_mail($to, $from, $subject, $body, $cc_mail, $bcc_mail);
+
+if ($sendmail){//비밀번호를 변경해야 합니다. 보안을 위해 가입시 입력하셨던 메일을 확인해주세요!
+	echo "<script>
+	window.alert("."'".selectwords($connect, $sessvar, 'a0245')."'".");
+	location.replace('./index.html');
+	</script>";
+} else {//이메일 주소가 올바르지 않아 발송이 실패되었습니다.
+	echo "<script>
+	window.alert("."'".selectwords($con, $sessvar, 'a0221')."'".");
+	history.go(-1);
+	</script>";
+}
+
+mysqli_close($con);
+?> 
+
+</body>
+</html>

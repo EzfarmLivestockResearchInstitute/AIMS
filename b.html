@@ -1,0 +1,48 @@
+<?php session_start();
+//unset($_SESSION['paperid']);  
+$ppr= $_POST['paperid']; // 설문지 세트 번호
+$_SESSION['paperid']= $ppr; // 설문지 세트 번호
+?>
+
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+</head>
+<body>
+<?php
+   include('connectdb.php'); 
+   $con = dbconect();
+
+
+// Check connection
+if (mysqli_connect_errno()) {
+echo "Failed to connect to MySQL: " . mysqli_connect_error();
+}
+// SQL INJECTION escape
+$coder = mysqli_real_escape_string($con, $_SESSION['coder']);
+$paperid = mysqli_real_escape_string($con, $_SESSION['paperid']);
+$q1 = mysqli_real_escape_string($con, $_POST['q1']);
+$q2 = mysqli_real_escape_string($con, $_POST['q2']);
+$q3 = mysqli_real_escape_string($con, $_POST['q3']);
+
+echo '입력자 :'.$coder.'<br>';
+echo '설문지 번호 :'.$_SESSION['paperid'].'<br>';
+
+$sql="INSERT INTO Persons4 (coder, paperid, noq1, noq2, noq3, q1, q2, q3)
+VALUES ('$coder', '$paperid', '1', '2', '3', '$q1','$q2','$q3' )";
+if (!mysqli_query($con,$sql)) {
+die('Error: ' . mysqli_error($con));
+}
+echo "1 record added";
+mysqli_close($con);
+?>
+<br><br>
+<A HREF="SurveyInputCheck.html"><br>입력한 설문지 확인하기 <br></A>
+<br><br>
+<a href="SurveyInpuForm01.html">다음 설문지 입력</a>
+
+<A HREF="showTable.html"><br>표 보기<br></A>
+
+<A HREF="index.html"><br>처음으로<br></A>
+
+</body>

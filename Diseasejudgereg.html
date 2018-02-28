@@ -1,0 +1,594 @@
+<? 
+session_start();
+ 
+if(!isset($_SESSION['lang']) OR empty($_SESSION['lang']) ){
+	$_SESSION['lang']=1;
+}
+
+//언어함수
+function selectwords($connect, $langnum, $serialnum) {
+	$sql="select WORDS from languages where LANG=$langnum and SERIAL_NUM='$serialnum' ";
+	$result=mysqli_query($connect, $sql);
+	$img=mysqli_fetch_assoc($result);
+	$lang=$img['WORDS']; 
+	return $lang;
+}
+
+?>
+
+<? require "connectdb.php"; ?>
+<? require "config.php"; ?>
+
+<!DOCTIME html>
+
+<html lang="ko">
+
+<head>
+<meta charset="utf-8">
+
+<META NAME="DESCRIPTION" CONTENT="">
+<META NAME="KEYWORDS" CONTENT="">
+
+<title> Input Data </title>
+
+<link rel="stylesheet" type="text/css" href="mystyle.css">
+
+<style type="text/css">
+a {text-decoration: none}
+th {
+font-weight: normal;
+}
+
+</style>
+
+<script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
+<script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/json2/20110223/json2.js">
+
+</script>
+
+<!-- dropdownlist javescript -->
+
+<script type="text/javascript">
+function ajaxFunction(choice) {
+	var httpxml;
+	try {
+  		httpxml=new XMLHttpRequest(); // Firefox, Opera 8.0+, Safari
+	}
+	catch (e)  {
+		try {
+			httpxml=new ActiveXObject("Msxml2.XMLHTTP"); 
+		}
+		catch (e) {
+			try {
+				httpxml=new ActiveXObject("Microsoft.XMLHTTP");
+			}
+			catch (e) {
+				alert("Your browser does not support AJAX!");
+				return false;
+			}
+		}
+	}
+	
+	// 이벤트 발생시 실행되는 함수 정의 
+	function stateChanged() { 
+    	if(httpxml.readyState==4) { 
+			
+			//상태 4인 경우 데이터를 받기
+			var myObject = JSON.parse(httpxml.responseText); 
+			
+			//alert(httpxml.responseText);
+			
+			// proveng
+			for(j=document.myForm.proveng.options.length-1;j>=0;j--) {
+				document.myForm.proveng.remove(j);// proveng의 옵션 항목 제거
+			}
+			var proveng1=myObject.value.proveng1;
+			var optn = document.createElement("OPTION");
+			optn.text = 'Select province';
+			optn.value = '';
+			document.myForm.proveng.options.add(optn);
+			for (i=0;i<myObject.proveng.length;i++) {
+				var optn = document.createElement("OPTION");
+				optn.text = myObject.proveng[i];
+				optn.value = myObject.proveng[i];
+				document.myForm.proveng.options.add(optn);
+				if(optn.value==proveng1){
+					var k= i+1;
+					document.myForm.proveng.options[k].selected=true;
+				}
+			} 
+			
+			//county
+			for(j=document.myForm.countyeng.options.length-1;j>=0;j--){
+				document.myForm.countyeng.remove(j);
+			}
+			var countyeng1=myObject.value.countyeng1;
+			var optnb = document.createElement("OPTION");
+			optnb.text = 'Select county';
+			optnb.value = '';
+			var choice1=myObject.value.choice1;
+			if(choice1!='s3') {
+				document.myForm.countyeng.options.add(optnb);		
+			}
+			for (i=0;i<myObject.countyeng.length;i++){
+				var optnb = document.createElement("OPTION");		
+				optnb.text = myObject.countyeng[i];
+				optnb.value = myObject.countyeng[i];
+				document.myForm.countyeng.options.add(optnb);
+				if(optnb.value==countyeng1){
+					document.myForm.countyeng.options[i].selected=true;
+				}
+			} 
+			
+
+			//countyeng
+			/*
+			for(j=document.myForm.countyeng.options.length-1;j>=0;j--){
+				document.myForm.countyeng.remove(j);
+			}
+			var countyeng1=myObject.value.countyeng1;
+			
+			var optnc = document.createElement("OPTION");
+			optnc.text = 'сонгоод мужийн 카운티 선택 Select countyeng';
+			optnc.value = '';
+			var choice1=myObject.value.choice1;
+			if(choice1!='s3') {
+				document.myForm.countyeng.options.add(optnc);		
+			}
+			for (i=0;i<myObject.countyeng.length;i++){
+				var optnc = document.createElement("OPTION");		
+				optnc.text = myObject.countyeng[i];
+				optnc.value = myObject.countyeng[i];
+				document.myForm.countyeng.options.add(optnc);
+				if(optnc.value==countyeng1){
+					document.myForm.countyeng.options[i].selected=true;
+				}
+			} 
+			*/
+			
+			// countykor			
+			//<select name=countykor  onchange=ajaxFunction('s4');>
+			/*for(j=document.myForm.countykor.options.length-1;j>=0;j--){
+				document.myForm.countykor.remove(j);
+			}
+			var countykor1=myObject.value.countykor1;
+			var optnb = document.createElement("OPTION");
+			optnb.text = 'сонгоод мужийн 박 허루  선택 Select countykor';
+			optnb.value = '';
+			var choice1=myObject.value.choice1;
+			if(choice1!='s4') {
+				document.myForm.countykor.options.add(optnb);		
+			}
+			for (i=0;i<myObject.countykor.length;i++){
+				var optnb = document.createElement("OPTION");		
+				optnb.text = myObject.countykor[i];
+				optnb.value = myObject.countykor[i];
+				document.myForm.countykor.options.add(optnb);
+				if(optnb.value==countykor1){
+					document.myForm.countykor.options[i].selected=true;
+				}
+			} */
+
+
+			///////////////////////////
+			document.getElementById("txtHint").style.background='#00f040';
+			document.getElementById("txtHint").innerHTML='хийж 완료 done';
+			//setTimeout("document.getElementById('txtHint').style.display='none'",3000)
+		} // if(httpxml.readyState==4) 
+	} //function provengChanged()
+
+	var url="ajax-dd3ck.php";
+
+	if(choice == 's1'){
+		var isUlaan=myForm.isUlaan.value;
+		var proveng='';
+		var countyeng='';
+		//var countykor ='';
+	}
+	if(choice == 's2'){
+		var isUlaan=myForm.isUlaan.value;
+		var proveng=myForm.proveng.value;
+		var countyeng='';
+		//var countykor ='';
+	}
+	else {
+		var isUlaan=myForm.isUlaan.value;
+		var proveng=myForm.proveng.value;
+		var countyeng=myForm.countyeng.value;
+		//var countykor =myForm.countykor.value;
+	}
+	/*
+	if(choice == 's3'){
+		var isUlaan=myForm.isUlaan.value;
+		var proveng=myForm.proveng.value;
+		var countyeng=myForm.countyeng.value;
+		var countykor ='';
+	}
+	else {
+		var isUlaan=myForm.isUlaan.value;
+		var proveng=myForm.proveng.value;
+		var countyeng=myForm.countyeng.value;
+		var countykor =myForm.countykor.value;
+	}*/
+	
+	
+	url=url+"?isUlaan="+isUlaan;
+	url=url+"&proveng="+proveng;
+	url=url+"&countyeng="+countyeng;
+	url=url+"&choice="+choice;
+	url=url+"&id="+Math.random();
+
+	myForm.st.value=isUlaan;
+	//document.getElementById("txtHint2").innerHTML=url;
+	
+	// 상태가 바뀌면 이 함수를 실행  
+	httpxml.onreadystatechange=stateChanged; 
+	
+	//비동기 통신 방식으로 url을 보내서 실행
+	httpxml.open("GET",url,true);
+	httpxml.send(null);
+	
+	// 기다리는 동안에 메세지 보냄 
+	/*document.getElementById("txtHint").innerHTML="нэг минут хүлээх... 잠시만 기다리세요... Please Wait....";
+	document.getElementById("txtHint").style.background='#f1f1f1';*/
+}// end of ajaxFunction(choice) 
+</script>
+
+<!-- Change Language Function-->
+<script type="text/javascript">
+var sURL = unescape(window.location.pathname);// 현재의 페이지를 언어만 변경 후 다시 열기
+
+//언어 변경 함수 
+function changeLang(lang){
+	$.ajaxSetup({async:false});//동기식으로 지정
+	var param={lang:lang};
+	$.get("changelangsession.php", param, refreshpage);
+	// param을 넘겨 서버측 php 파일 실행 후  클라이언트 측 함수 refresshpage 실행하여라. 
+}; 
+
+function refreshpage(strText){
+	//alert("parsed data: " + strText);
+    window.location.href = sURL;// refresh page
+}
+</script>
+</head>
+
+<body>
+<form name="myForm" action='submit.php' method='post'">
+	<input type=hidden name=st value=0>
+
+		<table><!-- 첫 테이블 -->
+	<tr>
+		<td> 
+			<? echo selectwords($connect, $_SESSION['lang'], 'a0042'); ?>:&nbsp; <!--병성 감성 입력-->
+		</td> 
+		<td> 
+			<input type="text" name="entdiagnostic" style="width:400px">
+		</td>
+		<td>
+			
+		</td>
+	
+	</tr>
+	</table>
+
+
+<table>
+<tr>
+	<td>	
+		<? echo selectwords($connect, $_SESSION['lang'], 'a0044'); ?>:&nbsp; <!-- 축주명 -->
+	</td>
+	<td ">
+		<input type="text" name="Owners_name" style="width:250px">		
+	</td>
+</tr>
+</table>
+<br>
+
+<table>
+	<tr>
+		<td>
+			<? echo selectwords($connect, $_SESSION['lang'], 'a0045'); ?>:&nbsp; <!-- 농장주소 -->
+		</td>
+<!--<div id="txtHint" style="width : 100px;background-color: #cccc33;"> 
+	 Зурвас газар 메세지 영역 Message area 
+</div> -->
+		<td >
+			<select name=isUlaan id='s1' style="width:140px" onchange=ajaxFunction('s1');>
+			<option value=''> Ulaanbaatar? </option>
+				<?Php
+					// 첫번째 리스트 박스의 국가 항목 표시 - 데이터베이스 테이블 읽기
+					require "config.php";// connection to database 
+					$sql="select distinct isUlaan from mongoladdress ";
+					foreach ($dbo->query($sql) as $row) {
+						echo "<option value=$row[isUlaan]>$row[isUlaan]</option>";
+					}
+				?>
+			</select>
+		</td>
+		<td >
+			<select name=proveng  style="width:140px" onchange=ajaxFunction('s2');>
+				<option value=''> Select province</option>
+			</select>
+		</td>
+		<td >
+			<select name=countyeng  style="width:140px" onchange=ajaxFunction('s3');>
+				<option value=''> Select county</option>
+			</select>
+		</td>
+	
+	<!--<tr>
+		<td colspan=3>
+			<input type=submit value='Submit'>
+		</td>
+	</tr>-->
+	</tr>
+</table>
+
+<table>
+	<tr>
+		<td>	
+			&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+			<? echo selectwords($connect, $_SESSION['lang'], 'a0049'); ?>:&nbsp; <!-- 위도 -->
+		</td>
+		<td>
+			<input type="text" name="lat_deg" style="width:80px">		
+		</td>
+		<td>
+			<input type="text" name="lat_min" style="width:80px">		
+		</td>
+		<td>
+			<input type="text" name="lat_sec" style="width:80px">		
+		</td>
+	</tr>
+	<tr>
+		<td>	
+			&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+			<? echo selectwords($connect, $_SESSION['lang'], 'a0050'); ?>:&nbsp; <!-- 경도 -->
+		</td>
+		<td>
+			<input type="text" name="long_deg" style="width:80px">		
+		</td>		
+		<td>
+			<input type="text" name="long_min" style="width:80px">		
+		</td>
+		<td>
+			<input type="text" name="long_sec" style="width:80px">		
+		</td>
+	</tr>
+</table>
+<table>
+	<tr>
+		<td>	
+			&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; 
+			<? echo selectwords($connect, $_SESSION['lang'], 'a0051'); ?>:&nbsp; <!-- 기타 -->
+		</td>
+		<td>
+			<input type="text" name="Other" style="width:248px">		
+		</td>		
+	</tr>
+</table>
+	
+<br>
+
+<table><!-- 두번째 테이블 --> 
+	<tr>
+		<td>
+			<? echo selectwords($connect, $_SESSION['lang'], 'a0052'); ?>:&nbsp; <!-- 진단일 -->
+		</td>
+		<td>
+			<input type="text" name="Diagnostic_date" style="width:240px">	
+		</td>
+		<td>
+			<!-- <? echo selectwords($connect, $_SESSION['lang'], 'a0058'); ?>-->&nbsp;&nbsp;  <!-- 신규 추가 발생 -->
+		</td>
+		<td> 
+			<? echo selectwords($connect, $_SESSION['lang'], 'a0059'); ?><!-- 신규 -->발생: <input type="radio" name="New_additional_occurance" checked />
+		</td>
+		<td>
+			<? echo selectwords($connect, $_SESSION['lang'], 'a0060'); ?><!-- 추가 -->발생: <input type="radio" name="New_additional_occurance" />
+		</td>
+	</tr>
+</table>
+
+<table>
+<tr>
+	<td>
+		<? echo selectwords($connect, $_SESSION['lang'], 'a0053'); ?>:&nbsp; <!-- 질병발생축종 -->
+	</td>
+	<td>
+		<select name=Disease_occurred_species style="width: 140px">
+			<option value='Disease_occurred_species'><? echo selectwords($connect, $_SESSION['lang'], 'a0053'); ?></option>
+				<?Php
+					require "config.php";// connection to database 
+					$sql="select distinct animalstype from animalstype	FOR UPDATE ";
+					foreach ($dbo->query($sql) as $row) {
+						echo "<option value=$row[animalstype]>$row[animalstype]</option>";
+					}
+				?>
+		</select>
+		<!--
+		<select name="Disease_occurred_species" size="1">
+			<option value="Disease_occurred_species"><? echo selectwords($connect, $_SESSION['lang'], 'a0053'); ?></option>
+		</select>-->
+	</td>
+	<td>
+		&nbsp; &nbsp; &nbsp; <? echo selectwords($connect, $_SESSION['lang'], 'a0054'); ?>:&nbsp; <!-- 품종 -->
+	</td>
+	<td>
+		<select name=Breed style="width: 140px">
+			<option value='Breed'><? echo selectwords($connect, $_SESSION['lang'], 'a0054'); ?></option>
+				<?Php
+					require "config.php";// connection to database 
+					$sql="select distinct animalstype from animalstype	FOR UPDATE ";
+					foreach ($dbo->query($sql) as $row) {
+						echo "<option value=$row[animalstype]>$row[animalstype]</option>";
+					}
+				?>
+		</select>
+		<!--<select name="Breed" size="1">
+			<option value="Breed"><? echo selectwords($connect, $_SESSION['lang'], 'a0054'); ?></option>
+		</select>-->
+	</td>
+</tr>
+</table>
+
+<table></table>
+<tr>
+	<td>
+		<? echo selectwords($connect, $_SESSION['lang'], 'a0056'); ?>:&nbsp;<!--진단명-->
+	</td>
+	<td>
+		<select name=Diagnosis >
+			<option value='diseaseoccur'> disease? </option>
+				<?Php
+					// 첫번째 리스트 박스의 국가 항목 표시 - 데이터베이스 테이블 읽기
+					require "config.php";// connection to database 
+					$sql="select distinct diseasename from diseasetype	FOR UPDATE ";
+					foreach ($dbo->query($sql) as $row) {
+						echo "<option value=$row[diseasename]>$row[diseasename]</option>";
+					}
+				?>
+		</select>
+		<!--<select name="Diagnosis" size="1">
+			<option value="diseaseoccur"><? echo selectwords($connect, $_SESSION['lang'], 'a0056'); ?></option>
+		</select>-->
+	</td>
+</tr>
+</table>
+<table>
+<tr>
+	<td>
+		<? echo selectwords($connect, $_SESSION['lang'], 'a0055'); ?>:&nbsp;<!-- 비고 -->
+	</td>
+	<td>
+		<input type="text" name="Note" style="width:450px">	
+	</td>
+</tr>
+</table>
+<table>
+<tr>
+	<th rowspan="2">
+		<? echo selectwords($connect, $_SESSION['lang'], 'a0057'); ?><!-- 사육두수 --> <br>질병발생축종현황: 
+	</th>	
+	<td>
+		<? echo selectwords($connect, $_SESSION['lang'], 'a0057'); ?><!-- 사육두수 -->
+	</td>
+	
+	<td>
+		<? echo selectwords($connect, $_SESSION['lang'], 'a0061'); ?><!-- 발생두수 -->
+	</td>
+	
+	<td>
+		<? echo selectwords($connect, $_SESSION['lang'], 'a0062'); ?><!-- 폐사두수 -->
+	</td>
+	
+</tr>
+<tr>
+	<!--td 행병합-->	
+	<!--/td-->
+	<td>
+		<input type="text" name="Livestock_population" style="width:150px"> 
+	</td>
+	<td>
+		<input type="text" name="Cases" style="width:150px">
+	</td>
+	<td>
+		<input type="text" name="Deaths" style="width:150px"> 
+	</td>
+</tr>
+</table>
+
+<br>
+
+<!-- 세번쨰 테이블 -->
+<table>
+	<tr>
+	<th rowspan="2">
+			<? echo selectwords($connect, $_SESSION['lang'], 'a0063'); ?>:&nbsp; <!-- 다른사육축종두수 -->
+	</th>
+	<td><!-- 양 -->
+		<? echo selectwords($connect, $_SESSION['lang'], 'a0064'); ?>
+	</td>
+	<td><!-- 염소 -->
+		<? echo selectwords($connect, $_SESSION['lang'], 'a0065'); ?>
+	</td>
+	<td><!-- 소 -->
+		<? echo selectwords($connect, $_SESSION['lang'], 'a0066'); ?>
+	</td>
+	<td><!-- 말 -->
+		<? echo selectwords($connect, $_SESSION['lang'], 'a0067'); ?>
+	</td>
+	<td><!-- 낙타 -->
+		<? echo selectwords($connect, $_SESSION['lang'], 'a0068'); ?>
+	</td>
+	<td><!-- 순록 -->
+		<? echo selectwords($connect, $_SESSION['lang'], 'a0069'); ?>
+	</td>
+	<td><!-- 돼지 -->
+		<? echo selectwords($connect, $_SESSION['lang'], 'a0070'); ?>
+	</td>
+	<td><!-- 닭 -->
+		<? echo selectwords($connect, $_SESSION['lang'], 'a0071'); ?>
+	</td>
+	<td><!-- 기타 -->
+		<? echo selectwords($connect, $_SESSION['lang'], 'a0072'); ?>
+	</td>
+</tr>
+<tr>
+	<!--td 행병합-->	
+	<!--/td-->
+	<td>
+		<input type="text" name="Other_species" style="width:60px">
+	</td>
+	<td>
+		<input type="text" name="id" style="width:60px">
+	</td>
+	<td>
+		<input type="text" name="id" style="width:60px">
+	</td>
+	<td>
+		<input type="text" name="id" style="width:60px">
+	</td>
+	<td>
+		<input type="text" name="id" style="width:60px">
+	</td>
+	<td>
+		<input type="text" name="id" style="width:60px">
+	</td>
+	<td>
+		<input type="text" name="id" style="width:60px">
+	</td>
+	<td>
+		<input type="text" name="id" style="width:60px">
+	</td>
+	<td>
+		<input type="text" name="id" style="width:60px">
+	</td>
+</tr>	
+</table>
+<table width="450">
+<tr>
+	<td>
+	&nbsp;	 
+	</td>
+</tr>
+	<tr>
+		<td align="center">
+			<input type=submit style="width:100" value="<? echo selectwords($connect, $_SESSION['lang'], 'a0043'); ?>" ><!-- submit -->
+		</td>	
+	</tr>
+</table>
+</form>
+
+<!--</form>-->
+<!--
+<A HREF="abc.php"> abc </A>
+<A HREF="ajax-dd3.php"> 드롭다운리스트 </A>
+-->
+<br><br>
+
+
+</body>
+
+</html>

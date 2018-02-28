@@ -1,0 +1,499 @@
+<? 
+session_start();
+date_default_timezone_set('Asia/Seoul');
+
+if(!isset($_SESSION['lang']) OR empty($_SESSION['lang']) ){
+	$_SESSION['lang']=1;
+}
+
+$sessvar=$_SESSION['lang'];
+
+if ( !isset($_SESSION['user_id']) OR empty($_SESSION['user_id']) ){
+		echo "
+		<script type=\"text/javascript\">
+			window.location.href = '/index.html';
+		</script>
+	"; 
+}
+/*
+if(!isset($_SESSION['psw']) OR empty($_SESSION['psw']) ){
+		echo "
+		<script type=\"text/javascript\">
+			window.location.href = '/index.html';
+		</script>
+	"; 
+}
+*/
+
+//언어함수
+function selectwords($connect, $langnum, $serialnum) {
+	$sql="select WORDS from languages where LANG=$langnum and SERIAL_NUM='$serialnum' ";
+	$result=mysqli_query($connect, $sql);
+	$img=mysqli_fetch_assoc($result);
+	$lang=$img['WORDS']; 
+	return $lang;
+}
+
+// 품종 이름으로 언어 사전 검색 
+function select_str_word($connect, $langnum, $breed) {
+	$sql="select SERIAL_NUM from languages where WORDS='$breed' ";
+	$result=mysqli_query($connect, $sql);
+	$img=mysqli_fetch_assoc($result);
+	$serialnum=$img['SERIAL_NUM']; 
+	$lang=selectwords($connect, $langnum, $serialnum); 
+	return $lang;
+}
+
+$today = date("Y-m-d");
+
+?>
+
+<? 
+	//require "connectdb.php"; 
+	include('connectdb.php'); 
+	$connect = dbconect();
+?>
+<? require "config.php"; ?>
+
+<!DOCTIME html>
+
+<html >
+
+<head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8" /> 
+
+<META NAME="DESCRIPTION" CONTENT="">
+<META NAME="KEYWORDS" CONTENT="">
+
+<title> Input Data </title>
+
+
+<!-- <script src="http://code.jquery.com/jquery-1.9.1.min.js"></script> -->
+<script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/json2/20110223/json2.js"></script>
+<link rel="stylesheet" href="http://code.jquery.com/ui/1.8.18/themes/base/jquery-ui.css" type="text/css" />
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script> 
+<!-- <script src="http://code.jquery.com/ui/1.8.18/jquery-ui.min.js"></script> -->
+<!--script src="http://maps.google.com/maps/api/js?sensor=false" type="text/javascript"></script -->
+<script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCLxX3-WwOgVZ3xxuFZH2_RQbytHES9MUg&callback=initMap"
+  type="text/javascript"></script>
+
+<link rel="stylesheet" type="text/css" href="./css/mystyle.css">
+<link rel="stylesheet" type="text/css" href="./css/admin.css">
+<link rel="stylesheet" type="text/css" href="./css/button_admin.css">
+
+<!--- 추가 start -->
+<!-- jQuery -->
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js" type="text/javascript"></script>
+<script src="//ajax.googleapis.com/ajax/libs/jqueryui/1/jquery-ui.min.js" type="text/javascript"></script>
+
+<!-- css & bootstrap -->
+<link rel="stylesheet" type="text/css" href="./css/my_style.css" />
+<link rel="stylesheet" type="text/css" href="./css/bootstrap.min.css" />
+<script type="text/javascript" src="./js/bootstrap/bootstrap.min.js"></script>
+<!--- 추가 end -->
+
+                 
+<script>
+	$(document).ready(
+		function() {
+			$( "#bdate" ).datepicker(
+				{
+        		dateFormat: 'yy-mm-dd',
+        		showOn:'button',
+        		buttonImage: './images/Icon_calendar.gif',  // 달력 icon 이미지
+        		changeMonth: true,
+        		changeYear: true,
+        		monthNamesShort: ['1','2','3','4','5','6','7','8','9','10','11','12']
+				}
+			);
+		}
+	)
+	$(document).ready(
+		function() {
+			$( "#edate" ).datepicker(
+				{
+        		dateFormat: 'yy-mm-dd',
+        		showOn:'button',
+        		buttonImage: './images/Icon_calendar.gif',  // 달력 icon 이미지
+        		changeMonth: true,
+        		changeYear: true,
+        		monthNamesShort: ['1','2','3','4','5','6','7','8','9','10','11','12']
+				}
+			);
+		}
+		
+	)
+
+</script>
+
+<!-- dropdownlist javescript -->
+
+<script type="text/javascript">
+
+function ConvertDMSToDD(degrees, minutes, seconds, direction) {
+    var dd = degrees + minutes/60 + seconds/(60*60);
+  	if (direction == "S" || direction == "W") {
+        dd = dd * -1;
+    } // Don't do anything for N or E
+    return dd;
+}
+
+function multimark(myObject){
+	var nplace= myObject.dplace.length;
+	//document.getElementById("dvnum").innerHTML="발생 장소 수: ".concat(nplace);
+	for(i=0; i<nplace; i++) {
+		var str=myObject.dplace[i];
+
+		var String=str.substring(str.lastIndexOf("^")+1,str.lastIndexOf(","));
+
+		var str0=str.substring(str.lastIndexOf("^")+1,str.lastIndexOf(","));
+		var str1=str.substring(str.lastIndexOf(",")+1,str.lastIndexOf(";"));
+		var str2=str.substring(str.lastIndexOf(";")+1,str.lastIndexOf("|"));
+		var str3=str.substring(str.lastIndexOf("|")+1,str.lastIndexOf("<"));
+		var str4=str.substring(str.lastIndexOf("<")+1,str.lastIndexOf(">"));
+		var str5=str.substring(str.lastIndexOf(">")+1,str.lastIndexOf("!"));
+		var newstr=str0.concat(" ").concat(str1).concat(" ").concat(str2).concat(" ").concat(str3).concat(" ").concat(str4).concat(" ").concat(str5);
+
+		/**
+			2016-08-26 추가
+			--농장주
+			--발생질병명(진단명)
+			--발생일(진단일)
+			--축종(질병발생축종)
+			--발생두수
+			--좌표
+			--주소(농장주소)	
+		*/		
+		var str6=str.substring(str.lastIndexOf("!")+1,str.lastIndexOf("@"));
+		var str7=str.substring(str.lastIndexOf("@")+1,str.lastIndexOf("%"));
+		var str8=str.substring(str.lastIndexOf("%")+1,str.lastIndexOf("&"));
+
+		var result="<?php $str8 = select_str_word($connect, $_SESSION['lang'], '"+str8+"'); echo $str8 ; ?>"; 
+
+
+
+		var str9=str.substring(str.lastIndexOf("&")+1,str.lastIndexOf("("));
+		var str10=str.substring(str.lastIndexOf("(")+1,str.lastIndexOf(")"));
+		var str11=str.substring(str.lastIndexOf(")")+1,str.lastIndexOf("["));
+		var str12=str.substring(str.lastIndexOf("[")+1,str.lastIndexOf("]"));
+		/**2016-08-26 추가*/
+
+		
+		var lat_deg = parseInt(str0, 10);
+		var lat_min = parseInt(str1, 10);
+		var lat_sec = parseInt(str2, 10);
+
+		var long_deg = parseInt(str3, 10);
+		var long_min = parseInt(str4, 10);
+		var long_sec = parseInt(str5, 10);
+
+		var latdd = ConvertDMSToDD(lat_deg, lat_min, lat_sec, "N"); 
+		var longdd = ConvertDMSToDD(long_deg, long_min, long_sec, "E"); 
+		var strlat = latdd.toString();
+		var strlong = longdd.toString();
+
+		var dvn = "dv".concat(parseInt(i+1));
+
+		/**2016-08-26 추가*/
+		var cnt = "<? echo selectwords($connect, $_SESSION['lang'], 'a0056'); ?>:" + str6 + '<br>' + "<? echo selectwords($connect, $_SESSION['lang'], 'a0052'); ?>:" + str7 + '<br>' + "<? echo selectwords($connect, $_SESSION['lang'], 'a0053'); ?>:" +str8+ '<br>' + "<? echo selectwords($connect, $_SESSION['lang'], 'a0061'); ?>:" + str9 + '<br>' + "<? echo selectwords($connect, $_SESSION['lang'], 'a0049'); ?>:" + lat_deg + '.' + lat_min + '.' + lat_sec + '<br>' +"<? echo selectwords($connect, $_SESSION['lang'], 'a0050'); ?>:" + long_deg + '.' + long_min + '.' + long_sec + '<br>' + "<? echo selectwords($connect, $_SESSION['lang'], 'a0045'); ?>:" + str10 + ' ' + str11 + ' ' + str12;
+		/**2016-08-26 추가*/
+
+		if(i==0) {
+			var locations=[[cnt, latdd, longdd, str10]];
+		}
+		else {
+			var locaelem = [cnt, latdd, longdd, str10];
+			locations.push(locaelem); // 행 1 개를 확장 location element 
+		}
+	//document.getElementById(dvn).innerHTML=strlat.concat(" ").concat(strlong).concat(" ");
+	}// END: for i			
+
+	var map = new google.maps.Map(
+		document.getElementById('map'), {
+			zoom: 5,
+			center: new google.maps.LatLng(47.88, 106.90),
+			mapTypeId: google.maps.MapTypeId.ROADMAP
+		}
+	);
+		    
+	var infowindow = new google.maps.InfoWindow();
+
+	var marker, i;
+	var image;
+	
+
+		
+	for (i = 0; i < locations.length; i++) {  
+	    //var DiagnosticDate=myObject.DiagDate[i];
+		var dos=locations[i][3];
+	    //alert(dos);
+	   	
+		if (dos=="바가노르" || dos=="Baganuur" || dos=="Багануур"){
+			image='images/icon_pin/icon_1.png';			
+		} else if (dos=="바가항가이" || dos=="Bagakhangai" || dos=="Багахангай"){
+			image='images/icon_pin/icon_2.png';			
+		} else if (dos=="바가항가이" || dos=="Bagakhangai" || dos=="Багахангай"){
+			image='images/icon_pin/icon_3.png';			
+		} else if (dos=="바양걸" || dos=="Bayangol" || dos=="Баянгол"){
+			image='images/icon_pin/icon_4.png';			
+		} else if (dos=="바양주르흐" || dos=="Bayanzurkh" || dos=="Баянзүрх"){
+			image='images/icon_pin/icon_5.png';			
+		} else if (dos=="날라이흐" || dos=="Nalaikh" || dos=="Налайх"){
+			image='images/icon_pin/icon_6.png';			
+		} else if (dos=="성긴하르한" || dos=="Songinokhairkhan" || dos=="Сонгинохайрхан"){
+			image='images/icon_pin/icon_7.png';			
+		} else if (dos=="수흐바타르" || dos=="Sukhbaatar" || dos=="Сүхбаатар"){
+			image='images/icon_pin/icon_8.png';			
+		} else if (dos=="한-올" || dos=="Khan-Uul" || dos=="Хан-Уул"){
+			image='images/icon_pin/icon_9.png';			
+		} else if (dos=="친겔테이" || dos=="Chingeltei" || dos=="Чингэлтэй"){
+			image='images/icon_pin/icon_10.png';			
+		} else if (dos=="아르항가이" || dos=="Arkhangai" || dos=="Архангай"){
+			image='images/icon_pin/icon_11.png';			
+		} else if (dos=="바양울기" || dos=="Bayan-Ulgii" || dos=="Баян-Өлгий"){
+			image='images/icon_pin/icon_12.png';			
+		} else if (dos=="바양헌거르" || dos=="Bayankhongor" || dos=="Баянхонгор"){
+			image='images/icon_pin/icon_13.png';			
+		} else if (dos=="볼간" || dos=="Bulgan" || dos=="Булган"){
+			image='images/icon_pin/icon_14.png';			
+		} else if (dos=="거브-알타이" || dos=="Govi-Altai" || dos=="Говь-Алтай"){
+			image='images/icon_pin/icon_15.png';			
+		} else if (dos=="거브숨베르" || dos=="Govisumber" || dos=="ГовьсүмбэрБагахангай"){
+			image='images/icon_pin/icon_16.png';			
+		} else if (dos=="다르항-올" || dos=="Darkhan-Uul" || dos=="Дархан-Уул"){
+			image='images/icon_pin/icon_17.png';			
+		} else if (dos=="더른거브" || dos=="Dornogovi" || dos=="Дорноговь"){
+			image='images/icon_pin/icon_18.png';			
+		} else if (dos=="더르너드" || dos=="Dornod" || dos=="Дорнод"){
+			image='images/icon_pin/icon_19.png';		
+		} else if (dos=="돈드거브" || dos=="Dundgovi" || dos=="Дундговь"){
+			image='images/icon_pin/icon_20.png';		
+		} else if (dos=="잡한" || dos=="Zavkhan" || dos=="Завхан"){
+			image='images/icon_pin/icon_21.png';
+		} else if (dos=="어르헝" || dos=="Orkhon" || dos=="Орхон"){
+			image='images/icon_pin/icon_22.png';
+		} else if (dos=="우부르항가이" || dos=="Uvurkhangai" || dos=="Өвөрхангай"){
+			image='images/icon_pin/icon_23.png';
+		} else if (dos=="움느거브" || dos=="Umnugovi" || dos=="Өмнөговь"){
+			image='images/icon_pin/icon_24.png';
+		} else if (dos=="수흐바타르" || dos=="Sukhbaatar" || dos=="Сүхбаатар"){
+			image='images/icon_pin/icon_25.png';
+		} else if (dos=="셀렝게" || dos=="Selenge" || dos=="Сэлэнгэ"){
+			image='images/icon_pin/icon_26.png';
+		} else if (dos=="투브" || dos=="Tuv" || dos=="Төв"){
+			image='images/icon_pin/icon_27.png';
+		} else if (dos=="옵스" || dos=="Uvs" || dos=="Увс"){
+			image='images/icon_pin/icon_28.png';
+		} else if (dos=="헙드" || dos=="Khovd" || dos=="Ховд"){
+			image='images/icon_pin/icon_29.png';
+		} else if (dos=="후브스굴" || dos=="Khuvsgul" || dos=="Хөвсгөл"){
+			image='images/icon_pin/icon_30.png';		
+		} else if (dos=="헨티" || dos=="Khentii" || dos=="Хэнтий"){
+			image='images/icon_pin/icon_31.png';	
+		}
+ 	
+		marker = new google.maps.Marker({
+			position: new google.maps.LatLng(locations[i][1], locations[i][2]),
+		   	 icon: image,
+		   	 map: map
+		});
+		      
+		google.maps.event.addListener(marker, 'click', (function(marker, i) {
+			return function() {
+		   	 infowindow.setContent(locations[i][0]);
+		   	 infowindow.open(map, marker);
+			}
+		})(marker, i));
+	} // end of for i	    
+} // END: anonymous function
+		
+function ajaxFunction(choice) {
+	$('#map').empty();
+	$('#map').append('<div id="loadingDiv" style="display: table; width: 100%; height: 400px;z-index:1000;"><div style="display: table-cell; text-align: center; ertical-align: middle; "> <h3 style="font-family:NanumGothic,나눔고딕;font-size:1.8em;font-weight:600"><br /><br /><br/>Loading....</h3></div></div>');
+
+
+	var httpxml;
+	var sessvar = <?php echo(json_encode($sessvar)); ?>;
+
+	var myForm = document.myForm;
+
+	if(myForm.bdate.value == ""){
+		alert("진단 시작일을 선택하세요.");
+		return;
+	}else if(myForm.edate.value == ""){
+		alert("진단 마지막일을 선택하세요.");
+		return;
+	}else if(myForm.bdate.value > myForm.edate.value){
+		alert("진단 시작일이 마지막일보다 큽니다.");
+		return;
+	}
+		
+	try {
+  		httpxml=new XMLHttpRequest(); // Firefox, Opera 8.0+, Safari
+	}
+	catch (e)  {
+		try {
+			httpxml=new ActiveXObject("Msxml2.XMLHTTP"); 
+		}
+		catch (e) {
+			try {
+				httpxml=new ActiveXObject("Microsoft.XMLHTTP");
+			}
+			catch (e) {
+				alert("Your browser does not support AJAX!");
+				return false;
+			}
+		}
+	}
+	
+	// 이벤트 발생시 실행되는 함수 정의 
+	function stateChanged() { 
+
+		//alert(httpxml.readyState);
+    	if(httpxml.readyState==4) {
+    		strsess="언어: "+sessvar; 
+			//alert(strsess);			
+			//상태 4인 경우 데이터를 받기
+			//console.log(httpxml.responseText);
+			var myObject = JSON.parse(httpxml.responseText); 
+			var stra="aaa"+document.myForm.diagdisease.options.length;
+			if(myObject.dplace.length == 0){
+				$('#map').empty();
+				alert("No Data");
+			} else {
+				$('#map').empty();
+				multimark(myObject);
+			}
+			
+		} // END: if(httpxml.readyState==4) 
+	} // END: function provengChanged()
+
+	// 데이터베이스에서 자료 가지고 오기 위한 준비
+	var url="ajax-getmapmarkdata02-01.php";
+
+
+	Disease_occurred_species=myForm.Disease_occurred_species.value;
+	diagdisease=myForm.diagdisease.value;
+
+	url=url+"?sessvar="+sessvar;
+	Disease_occurred_species=encodeURIComponent(Disease_occurred_species);
+	url=url+"&Disease_occurred_species="+Disease_occurred_species;
+	diagdisease=encodeURIComponent(diagdisease);
+	url=url+"&diagdisease="+diagdisease;
+	url=url+"&bdate="+myForm.bdate.value;
+	url=url+"&edate="+myForm.edate.value;
+	url=url+"&id="+Math.random();
+	url=url+"&lang="+ <? echo $_SESSION['lang']; ?>;
+	
+	myForm.st.value=Disease_occurred_species;
+	//document.getElementById("txtHint2").innerHTML=url;
+	
+	// 상태가 바뀌면 이 함수를 실행  
+	httpxml.onreadystatechange=stateChanged; 
+	
+	//비동기 통신 방식으로 url을 보내서 실행
+	httpxml.open("GET",url,true);
+	httpxml.send(null);
+	
+
+}// end of ajaxFunction(choice) 
+</script>
+
+<!-- Change Language Function-->
+<script type="text/javascript">
+var sURL = unescape(window.location.pathname);// 현재의 페이지를 언어만 변경 후 다시 열기
+
+//언어 변경 함수 
+function changeLang(lang){
+	$.ajaxSetup({async:false});//동기식으로 지정
+	var param={lang:lang};
+	$.get("changelangsession.php", param, refreshpage);
+	// param을 넘겨 서버측 php 파일 실행 후  클라이언트 측 함수 refresshpage 실행하여라. 
+}; 
+
+function refreshpage(strText){
+	//alert("parsed data: " + strText);
+    window.location.href = sURL;// refresh page
+}
+
+</script>
+</head>
+
+<body>
+
+<div  >
+<form name="myForm" >
+	<input type=hidden name=st value=0>
+
+<!--검색 start-->
+<div class="container-fluid search_box01">
+	<div class="form-inline col-xs-12 col-sm-12 col-md-12 col-lg-12">
+		<div class="col-xs-12 col-sm-10 col-md-10 col-lg-10">
+		
+			<div class="form-group col-xs-12 col-sm-12 col-md-12 col-lg-12 pd_mg00">
+				<div class="col-xs-12 col-sm-12 col-md-2 col-lg-2 control-label search_label"><? echo selectwords($connect, $_SESSION['lang'], 'a0052'); ?>&nbsp;<!-- 진단일 --></div>
+				<div class="col-xs-12 col-sm-12 col-md-10 col-lg-10 search_in01">
+					<input type="text" name="bdate" id="bdate" readonly="readonly" onfocus="this.blur();" value="<?php echo $today; ?>"> ~ 
+					<input type="text" name="edate" id="edate" readonly="readonly" onfocus="this.blur();" value="<?php echo $today; ?>">
+				</div>
+			</div>
+
+			<div class="form-group col-xs-12 col-sm-12 col-md-12 col-lg-12 pd_mg00">
+				<div class="col-xs-12 col-sm-12 col-md-2 col-lg-2 control-label search_label"><? echo selectwords($connect, $_SESSION['lang'], 'a0053'); ?>&nbsp; <!-- 질병발생축종 --></div>
+				<div class="col-xs-12 col-sm-12 col-md-10 col-lg-10 search_in01">
+					<select name='Disease_occurred_species'>
+					<option value=''><? echo selectwords($connect, $_SESSION['lang'], 'a0053'); ?></option>
+						<?Php
+							require "config.php";// connection to database 
+							$sql="select distinct anieng from animalstype";
+							foreach ($dbo->query($sql) as $row) {
+								$langanimalstype = select_str_word($connect, $_SESSION['lang'], $row[anieng]); 
+								echo "<option value=$row[anieng]>$langanimalstype</option>";
+							}
+						?>
+					</select>
+				</div>
+			</div>
+
+			<div class="form-group col-xs-12 col-sm-12 col-md-12 col-lg-12 pd_mg00">
+				<div class="col-xs-12 col-sm-12 col-md-2 col-lg-2 control-label search_label"><? echo selectwords($connect, $_SESSION['lang'], 'a0056'); ?>&nbsp;<!--진단명--></div>
+				<div class="col-xs-12 col-sm-12 col-md-10 col-lg-10 search_in01">
+					<select name=diagdisease>
+					<option value=''> <? echo selectwords($connect, $_SESSION['lang'], 'a0086'); ?> 	</option>
+						<?Php
+							require "config.php";// connection to database 
+							$sql="select distinct DisEng from animalspecydisease";
+							foreach ($dbo->query($sql) as $row) {
+								$langdisease = select_str_word($connect, $_SESSION['lang'], $row[DisEng]); 
+								echo "<option value='".$row[DisEng]."'>$langdisease </option>";
+							}
+						?>
+					</select>	
+				</div>
+			</div>
+		
+		</div>
+
+		<div class="col-xs-12 col-sm-2 col-md-2 col-lg-2 btn_mg01">
+			<!--<input type=submit class="btn_gtBlue w110" value='<? echo selectwords($connect, $_SESSION['lang'], 'a0164'); ?> ' >-->
+			<span class="btn_gtBlue w100"><a href='#' onclick="ajaxFunction('s1'); return false;"><? echo selectwords($connect, $_SESSION['lang'], 'a0164'); ?></a></span><!--submit버튼-->
+		</div>
+
+	</div>
+</div>
+<!--검색 end-->
+
+
+
+
+</form>
+</div>
+<!--div id="dvnum" style="width: 400px; height: 20px;"></div-->
+<!-- <div style="width: 1100px; height: 4px;"></div> 
+<div id="map" style="width: 1100px; height: 450px; float:center;">
+-->
+<div id="map" style="width: 100%; height: 100%;"></div>
+
+</body>
+
+</html>

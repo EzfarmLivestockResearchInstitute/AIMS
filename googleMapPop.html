@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html>
+<head>
+<link rel="stylesheet" type="text/css" href="./css/admin.css">
+<link rel="stylesheet" type="text/css" href="./css/button_admin.css">
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.4/jquery.min.js">
+<script src="http://maps.googleapis.com/maps/api/js"></script>
+<script src="http://maps.google.com/maps/api/js?sensor=false&key=AIzaSyCLxX3-WwOgVZ3xxuFZH2_RQbytHES9MUg" type="text/javascript"></script>
+<script>
+/*
+var map;
+var myCenter=new google.maps.LatLng(47.88, 106.90);
+ 
+function initialize()
+{
+var mapProp = {
+  center:myCenter,
+  zoom:5,
+  mapTypeId:google.maps.MapTypeId.ROADMAP
+  };
+ 
+  map = new google.maps.Map(document.getElementById("googleMap"),mapProp);
+ 
+  google.maps.event.addListener(map, 'click', function(event) {
+    placeMarker(event.latLng);
+  });
+}
+ 
+function placeMarker(location) {
+  var marker = new google.maps.Marker({
+    position: location,
+    map: map,
+  });
+  var infowindow = new google.maps.InfoWindow({
+    content: 'Latitude: ' + location.lat() + '<br>Longitude: ' + location.lng()
+  });
+  infowindow.open(map,marker);
+}
+ 
+google.maps.event.addDomListener(window, 'load', initialize);
+*/
+
+
+$(document).ready(function() {
+	    var latlng = new google.maps.LatLng(36.139850, 128.113693);
+	    var myOptions = {
+	  	      zoom : 10,
+	  	      center : latlng,
+	  	      mapTypeId : google.maps.MapTypeId.ROADMAP
+	  	}
+	    var map = new google.maps.Map(document.getElementById("map_canvas"), myOptions);
+	    var marker = new google.maps.Marker({
+			position : latlng, 
+    		map : map
+    	});
+	    
+	    var geocoder = new google.maps.Geocoder();
+	    
+	    google.maps.event.addListener(map, 'click', function(event) {
+	    	var location = event.latLng;
+	    	geocoder.geocode({
+	    		'latLng' : location
+	    	},
+	    	function(results, status){
+	    		if( status == google.maps.GeocoderStatus.OK ) {
+	    			$('#address').html(results[0].formatted_address);
+	    			$('#lat').html(results[0].geometry.location.lat());
+	    			$('#lng').html(results[0].geometry.location.lng());
+	    		}
+	    		else {
+	    			alert("Geocoder failed due to: " + status);
+	    		}
+	    	});
+	    	if( !marker ) {
+	    		marker = new google.maps.Marker({
+	    			position : location, 
+		    		map : map
+		    	});
+	    	}
+	    	else {
+	    		marker.setMap(null);
+	    		marker = new google.maps.Marker({
+	    			position : location, 
+		    		map : map
+		    	});
+	    	}
+	    	//map.setCenter(location);
+	    });
+	});
+
+function fnClosePop()
+{
+var lat = document.getElementById("lat").childNodes[0].nodeValue ;	//위도
+var lng = document.getElementById("lng").childNodes[0].nodeValue ;	//경도
+
+
+opener.document.myForm.test_lat.value = lat;
+opener.document.myForm.test_long.value = lng;
+
+ window.close();
+}
+
+
+function convertDMS()
+{
+	var latAbs , lonAbs ;
+	var lat = document.getElementById("lat").childNodes[0].nodeValue ;	//위도
+	var lon = document.getElementById("lng").childNodes[0].nodeValue ;	//경도
+
+	var signLat = 1 , signLon = 1 ;
+	if ( lat < 0 ) { signLat = -1 ; }
+	if ( lon < 0 ) { signLon = -1 ; }
+	latAbs = Math.abs( Math.round(lat * 1000000.));
+	if(latAbs > (90 * 1000000)) { 
+		lat = 0 ;  
+		latAbs=0 ; 
+	}
+
+	lonAbs = Math.abs( Math.round(lon * 1000000.));
+
+	if(lonAbs > (180 * 1000000)) { 
+		lon = 0 ;  
+		lonAbs=0 ; 
+	}
+    
+	// 도위도
+	var lat_deg = Math.floor(latAbs / 1000000) * signLat;    
+	// 분위도
+	var lat_min = Math.floor(  ((latAbs/1000000) - Math.floor(latAbs/1000000)) * 60);
+	// 초위도
+	var lat_sec = Math.floor(((((latAbs/1000000) - Math.floor(latAbs/1000000)) * 60) - Math.floor(((latAbs/1000000) - Math.floor(latAbs/1000000)) * 60)) * 100000) *60/100000;
+    
+	// 도경도
+	var long_deg = Math.floor(lonAbs / 1000000) * signLon; 
+	// 분경도
+	var long_min = Math.floor(  ((lonAbs/1000000) - Math.floor(lonAbs/1000000)) * 60); 
+	// 초경도
+	var long_sec = Math.floor(((((lonAbs/1000000) - Math.floor(lonAbs/1000000)) * 60) - Math.floor(((lonAbs/1000000) - Math.floor(lonAbs/1000000)) * 60)) * 100000) *60/100000; 
+
+	
+	opener.document.myForm.lat_deg.value = lat_deg;
+	opener.document.myForm.lat_min.value = lat_min;
+	opener.document.myForm.lat_sec.value = lat_sec;
+	
+	opener.document.myForm.long_deg.value = long_deg;
+	opener.document.myForm.long_min.value = long_min;
+	opener.document.myForm.long_sec.value = long_sec;
+
+	window.close();
+
+
+
+}
+
+
+
+
+</script>
+</head>
+ 
+<body>
+<form name="popForm"> 
+<table border="1">
+	<tr>
+		<td colspan="2"><div id="map_canvas" style="width:885px;height:380px;"></div></td>
+	</tr>
+	<tr>
+		<th width="100">lat</th>
+		<td id="lat">36.139850</td>
+	</tr>
+	<tr>
+		<th>lng</th>
+		<td id="lng">128.113693</td>
+	</tr>
+	<tr>	
+		<th>address</th>
+		<td id="address">김천시청</td>
+	</tr>
+</table>
+<div align="center">
+	<br>
+	<span class="btn_gtBlue w60"><a href='#' onclick="convertDMS()">apply</a></span>
+</div>
+</form>
+</body>
+</html>

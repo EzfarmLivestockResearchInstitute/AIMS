@@ -1,0 +1,229 @@
+<? 
+session_start();
+ 
+if(!isset($_SESSION['lang']) OR empty($_SESSION['lang']) ){
+	$_SESSION['lang']=1;
+
+}
+	
+$_SESSION['user_id']=$user_id;
+$sessvar=$_SESSION['lang'];
+
+$pid=$_GET['pid'];
+$_SESSION['pid']=$pid;
+$sesspid=$_SESSION['pid'];
+	
+//언어함수
+function selectwords($connect, $langnum, $serialnum) {
+	$sql="select WORDS from languages where LANG=$langnum and SERIAL_NUM='$serialnum' ";
+	$result=mysqli_query($connect, $sql);
+	$img=mysqli_fetch_assoc($result);
+	$lang=$img['WORDS']; 
+	return $lang;
+}
+
+
+//% DB 연결
+   include('connectdb.php'); 
+   $connect = dbconect();
+
+if(!$connect)
+	die("DB 접속 실패: " .mysql_error());
+//else
+//	echo "Successful!";
+
+?>
+
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title> TEST </title>
+<link href="style.css" rel="stylesheet"/>
+<style type="text/css">a {text-decoration: none}</style>
+
+<script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
+<script type="text/javascript" src="http://cdnjs.cloudflare.com/ajax/libs/json2/20110223/json2.js"></script>
+<link rel="stylesheet" href="http://code.jquery.com/ui/1.8.18/themes/base/jquery-ui.css" type="text/css" />
+<!--<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>-->
+<script src="http://code.jquery.com/ui/1.8.18/jquery-ui.min.js"></script>
+
+
+<script>
+function ajaxFunction(hamString) {
+	var httpxml;
+	try {
+  		httpxml=new XMLHttpRequest(); // Firefox, Opera 8.0+, Safari
+	}
+	catch (e)  {
+		try {
+			httpxml=new ActiveXObject("Msxml2.XMLHTTP"); 
+		}
+		catch (e) {
+			try {
+				httpxml=new ActiveXObject("Microsoft.XMLHTTP");
+			}
+			catch (e) {
+				alert("Your browser does not support AJAX!");
+				return false;
+			}
+		}
+	}
+
+	// 이벤트 발생시 실행되는 함수 정의 
+	function stateChanged() { 
+		//alert(httpxml.readyState);
+    	if(httpxml.readyState==4){
+			//상태 4인 경우 데이터를 받기 
+			//alert(httpxml.responseText);
+			var myObject = JSON.parse(httpxml.responseText);
+			var pid=myObject.value.pid;
+			var flag=myObject.value.flag;
+			//document.getElementById("dvnum1").innerHTML=" pid="+pid+" flag="+flag;
+			if(flag=='r'){
+				window.location.href = 'boardModify.html'+'?pid='+pid;
+			}
+			else{
+				location.reload();
+			}
+
+		} // END: if(httpxml.readyState==4) 
+	} // END: function provengChanged()
+	// 데이터베이스에서 자료 가지고 오기 위한 준비
+	var url="boardass.php";
+	
+	url+=hamString;
+	url=url+"&randid="+Math.random();
+
+	// 상태가 바뀌면 이 함수를 실행  
+	httpxml.onreadystatechange=stateChanged; 
+	
+	//비동기 통신 방식으로 url을 보내서 실행
+	httpxml.open("GET",url,false);
+	httpxml.send();
+				
+
+	//httpxml.send(jasonString);	
+}// end of ajaxFunction(choice) 
+
+function revimodirecord(idflag) {
+	//document.getElementById("dvnum0").innerHTML=idflag;
+	ajaxFunction(idflag);
+}
+</script>
+
+<script type="text/javascript">
+var sURL = unescape(window.location.pathname);// 현재의 페이지를 언어만 변경 후 다시 열기
+
+//언어 변경 함수 
+function changeLang(lang){
+	$.ajaxSetup({async:false});//동기식으로 지정
+	var param={lang:lang};
+	$.get("changelangsession.php", param, refreshpage);
+	// param을 넘겨 서버측 php 파일 실행 후  클라이언트 측 함수 refresshpage 실행하여라. 
+}; 
+
+function refreshpage(strText){
+	//alert("parsed data: " + strText);
+    window.location.href = sURL;// refresh page
+}
+</script>
+</head>
+
+
+<body>
+<?php
+$con1 = dbconect();
+
+// Check connection
+if (mysqli_connect_errno()) {
+echo "Failed to connect to MySQL: " . mysqli_connect_error();
+}
+$result = mysqli_query($con1,"SELECT * FROM board where PID='$pid' AND DeleteOrNot=1 ");
+while($row = mysqli_fetch_array($result)) {
+	$layer=$row['layer'];
+	$LinkedID=$row['LinkedID'];
+	$name=$row['name'];
+	$title=$row['title'];
+	$contents=$row['contents'];
+	$posteddate=$row['posteddate'];
+	$hits=$row['hits'];
+	$DeleteOrNot=$row['DeleteOrNot'];
+}	
+?>
+
+<table class="view" cellspacing="0" border='1' >
+		<col width="50px">
+		<col width="400px">
+		<col width="50px">
+		<col width="50px">
+	<tr>
+		<td bgcolor="#fad6f5"> <!-- 제목 -->
+			<?php echo selectwords($connect, $_SESSION['lang'], a0092)?>
+		</td> 
+		<td>
+			<?php echo $title; ?>
+		</td>
+		<td bgcolor="#fdecfb"> <!-- 글쓴이 -->
+			글쓴이
+		</td> 
+		<td>
+			<?php echo $name; ?>
+		</td>
+	</tr>
+	<tr>
+		<td bgcolor="#fad6f5" ><!-- 내용 -->
+			<?php echo selectwords($connect, $_SESSION['lang'], a0093)?>
+		</td>
+		<td bgcolor="#fdecfb" colspan="3">
+			<?php echo $contents; ?>
+		</td>
+	</tr>
+
+		<?php
+			$con1 = dbconect();
+
+			// Check connection
+			if (mysqli_connect_errno()) {
+				echo "Failed to connect to MySQL: " . mysqli_connect_error();
+			}
+
+			echo "<tr>";
+			$valStr='?pid='.$row['PID'].'&flag='.'r'; 
+			$tmp1='<td align="center"> <input type=button value="수정" onclick="revimodirecord(';
+			$tmp2="'$valStr'";
+			$tmp3='); return false;" > </td>';
+			$tmp=$tmp1.$tmp2.$tmp3;
+			echo $tmp;
+			
+			$valStr='?pid='.$row['PID'].'&flag='.'d'; 
+			$tmp1='<td align="center"> <input type=button value="삭제" onclick="revimodirecord(';
+			$tmp2="'$valStr'";
+			$tmp3='); return false;" > </td>';
+			$tmp=$tmp1.$tmp2.$tmp3;
+			echo $tmp;
+			echo "</tr>";
+		?>
+</table>
+<form action="boardcomment.php" method="post">
+	<table>
+		<tr>
+			<? $layer1=$layer+1; ?>
+			<input type="hidden" name="colayer" value='<? echo $layer1; ?>'>
+			<input type="hidden" name="coLinkedID" value='<? echo $pid; ?>'>
+			<td bgcolor="#e9e7e9" colspan="4">
+				댓글 	 
+			</td>
+			<td>
+				<input type="text" id="comment"  name="comment"  style="width:350px;">
+			</td>
+			<td>
+				<input type=submit value="댓글달기" width="60" height="60"> 
+			</td>
+		</tr>
+	</table>
+</form>
+
+
+</body>
+</html>
+	

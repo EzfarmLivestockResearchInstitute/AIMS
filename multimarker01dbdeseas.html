@@ -1,0 +1,52 @@
+<? 	
+	$hostname = exec("/home/bin/hostname");// cafe24 path 지정
+	require('include/sessvarSetting.php' );
+	require('include/langSetting.php');
+	//require('include/connectDB.php');
+	include('connectdb.php'); 
+	$connect = dbconect();
+?>
+
+<!DOCTYPE html>
+<html> 
+<head> 
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8" /> 
+  <title>Google Maps Multiple Markers</title> 
+  <script src="http://maps.google.com/maps/api/js?sensor=false" 
+          type="text/javascript"></script>  
+    <script type="text/javascript">
+	document.getElementById("aaa").innerHTML="aaa";
+function ConvertDMSToDD(degrees, minutes, seconds, direction) {
+    var dd = degrees + minutes/60 + seconds/(60*60);
+
+    if (direction == "S" || direction == "W") {
+        dd = dd * -1;
+    } // Don't do anything for N or E
+    return dd;
+}
+</script>
+</head> 
+<body>
+  <div id="aaa" name="aaa"></div>
+<?
+$con1 = dbconect();
+
+if (mysqli_connect_errno()) {
+echo "Failed to connect to MySQL: " . mysqli_connect_error();
+}
+$result = mysqli_query($con1,"SELECT * FROM disease");
+
+
+while($row = mysqli_fetch_array($result)) {
+echo "위도:  " . $row['lat_deg'] . "&nbsp;&nbsp;&nbsp;";
+echo "" . $row['lat_min'] . "&nbsp;&nbsp;&nbsp;";
+echo "" . $row['lat_sec'] . "<br>";
+echo "경도:" . $row['long_deg'] . "&nbsp;&nbsp;&nbsp;";
+echo "" . $row['long_min'] . "&nbsp;&nbsp;&nbsp;";
+echo "" . $row['long_sec'] . "<br><br>";
+}
+?>
+
+</body>
+
+</html>

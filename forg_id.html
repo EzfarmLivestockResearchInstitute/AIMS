@@ -1,0 +1,174 @@
+<?php
+session_start();
+
+	require('./include/sessvarSetting.php' );
+	require('./include/langSetting.php');
+	require('./include/connectDB.php');
+?>
+
+<? require "./connectdb.php"; ?>
+<? require "./config.php"; ?>
+
+<!DOCTIME html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html" charset="utf-8">
+	<title>M-Aims System</title>
+	
+	<!-- Include jQuery and jQuery UI -->
+	<script src="//ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js" type="text/javascript"></script>
+	<script src="//ajax.googleapis.com/ajax/libs/jqueryui/1/jquery-ui.min.js" type="text/javascript"></script>
+	
+	<!-- 부트스트랩 -->
+	<link rel="stylesheet" type="text/css" href="./css/bootstrap.min.css" />
+	<script type="text/javascript" src="./js/bootstrap/bootstrap.min.js"></script>
+	<link rel="stylesheet" type="text/css" media="screen" href="./css/font-awesome.min.css"><!--left menu앞 & 기타 메뉴아이콘-->
+
+	<!-- SmartAdmin Styles : Caution! DO NOT change the order --> 
+	<link rel="stylesheet" type="text/css" href="./css/smartadmin-production.min.css" /> 
+	<link rel="stylesheet" type="text/css" href="./css/smartadmin-production-plugins.min.css" />
+	<link rel="stylesheet" type="text/css" href="./css/smartadmin-skins.min.css" /> 
+	<link rel="stylesheet" type="text/css" href="./css/smartadmin-rtl.min.css" />
+
+	<!-- 추가스타일 -->
+	<link rel="stylesheet" type="text/css" href="./css/your_style.css" />
+
+	<!-- Include Fancytree skin and library -->
+	<link href="./utility/fancytree/skin-win8/ui.fancytree.min.css" rel="stylesheet" type="text/css">
+	<script src="./utility/fancytree/jquery.fancytree-all.min.js" type="text/javascript"></script>
+	
+	
+	<script type="text/javascript">
+	var sURL = unescape(window.location.pathname);// 현재의 페이지를 언어만 변경 후 다시 열기
+
+	//언어 변경 함수 
+	function changeLang(lang){
+		$.ajaxSetup({async:false});//동기식으로 지정
+		var param={lang:lang};
+		$.get("./changelangsession.php", param, refreshpage);
+		// param을 넘겨 서버측 php 파일 실행 후  클라이언트 측 함수 refresshpage 실행하여라. 
+	}; 
+
+	function refreshpage(strText){
+		//alert("parsed data: " + strText);
+    	window.location.href = sURL;// refresh page
+	}
+	
+	function FNC_ChgSite(value) {
+		if (value!=''){
+			window.open(value, "", "width=800, height=700, toolbar=yes, menubar=yes, scrollbars=yes, resizable=yes" );
+		}
+	}		
+	</script>
+</head>
+
+
+<body>
+	<!-- #HEADER -->
+	<header id="header" style="padding:25px 0 0 0;" >
+		<div class="logo-group">
+				<span id="logo"><a href="http://qia.go.kr"><img src="images/logoMain.png" alt="<? echo selectwords($connect, $_SESSION['lang'], 'a0001'); ?>" /></a></span>
+		</div>	
+				<? 
+					if($_SESSION['lang']==1){
+						$tstr="changeLang('2')";
+						$aaa='<span id="extr-page-header-space"><a href="#" target="_self"><button class="btn btn-info" type="button" ng-click="" onClick="'.$tstr.'">солонгос</button></a></span>';
+						echo $aaa;
+						
+						$tstr2="changeLang('3')";
+						$aa1='<span id="extr-page-header-space"><a href="#" target="_self"><button class="btn btn-info" type="button" ng-click="" onClick="'.$tstr2.'">англи хэл</button></a></span>';
+						echo $aa1;
+							}
+					elseif($_SESSION['lang']==2){
+						$tstr="changeLang('1')";
+						$aaa='<span id="extr-page-header-space"><a href="#" target="_self"><button class="btn btn-info" type="button" ng-click="" onClick="'.$tstr.'">몽골어</button></a></span>';
+						echo $aaa;
+						
+						$tstr2="changeLang('3')";
+						$aa1='<span id="extr-page-header-space"><a href="#" target="_self"><button class="btn btn-info" type="button" ng-click="" onClick="'.$tstr2.'">영어</button></a></span>';
+						echo $aa1;
+							}
+					else{
+						$tstr="changeLang('1')";
+						$aaa='<span id="extr-page-header-space"><a href="#" target="_self"><button class="btn btn-info" type="button" ng-click="" onClick="'.$tstr.'">Mongolian</button></a></span>';
+						echo $aaa;
+						
+						$tstr2="changeLang('2')";
+						$aa1='<span id="extr-page-header-space"><a href="#" target="_self"><button class="btn btn-info" type="button" ng-click="" onClick="'.$tstr2.'">Korean</button></a></span>';
+						echo $aa1;
+							}
+				?>  <!-- 언어 선택 -->
+				
+	</header>
+	
+	<!-- #HEADER -->
+
+<!--콘텐츠 영역-->
+<div id="main" role="main" style="margin-left:0px;">
+	
+	<div style="padding-top:12px;width:100%;height:40px;background-color:#3c78b5;color:white;text-align:center;"><? echo selectwords($connect, $_SESSION['lang'], 'a0003'); ?></div>
+	
+	<div id="content" class="container">
+		<div class="row">
+			
+			<div class="col-xs-12 col-sm-12 col-md-7 col-lg-8 hidden-xs hidden-sm">
+				<h1 class="txt-color-blue login-header-big" style="font-size:250%"><? echo selectwords($connect, $_SESSION['lang'], 'a0204'); ?></h1><!-- 아이디 찾기-->
+			</div>
+		
+			<div class="col-xs-12 col-sm-12 col-md-5 col-lg-4">
+				<div class="well no-padding">
+					<form action="./find_id.php" method="post" class="smart-form client-form">
+						<header>
+							<? echo selectwords($connect, $_SESSION['lang'], 'a0204'); ?>
+						</header>
+
+						<fieldset>
+							<section>
+								<label class="label"><? echo selectwords($connect, $_SESSION['lang'], 'a0177'); ?></label><!--이름 -->
+								<label class="input"> <i class="icon-append fa fa-user"></i>
+									<input type="text" name="name">
+									<b class="tooltip tooltip-top-right"><i class="fa fa-user txt-color-teal"></i> Please enter name</b></label>
+							</section>
+							<section>
+								<label class="label"><? echo selectwords($connect, $_SESSION['lang'], 'a0176'); ?></label><!--이메일 -->
+								<label class="input"> <i class="icon-append fa fa-envelope"></i>
+									<input type="email" name="email">
+									<b class="tooltip tooltip-top-right"><i class="fa fa-envelope txt-color-teal"></i> Enter your email address</b> </label>
+								<div class="note">
+									<!-- <a href="<?php echo APP_URL; ?>/forgotpassword.php">Forgot password?</a> -->
+								</div>
+							</section>
+						</fieldset>
+						
+						<footer>
+							<span><input class="btn btn-primary" name="find" type="submit" value="<? echo selectwords($connect, $_SESSION['lang'], 'a0204'); ?>" /></span>	<!-- 아이디 찾기-->
+						</footer>
+					</form>
+				</div>
+			</div>
+			
+		</div>		
+	</div>
+</div>
+
+	<!-- PAGE FOOTER -->
+<div class="page-footer sub_footer" style="background-color:white;">
+	<div id="footer" style="width:100%;margin-top:1%;">
+		<div class="col-xs-12 col-sm-4 col-md-4 col-lg-4"><img src="./images/footlogo.png"></div>
+		<div class="copy_r col-xs-12 col-sm-4 col-md-4 col-lg-4"><font style="font-size:9px;text-align:center;">COPTRIGHT © ANIMAL AND PLANT QUARANTINE AGENCY ALL RIGHTS RESERVEO. </font></div>
+		<div class="site_go col-xs-12 col-sm-4 col-md-4 col-lg-4">
+			<b>관련기관 바로가기</b>
+			<select title="관련기관 바로가기 선택" class="w_140" id="targetSelect1" onChange='javascript:FNC_ChgSite(this.value);'>
+				<option value="">관련기관 사이트</option>
+				<option value="http://qia.go.kr/">농림축산검역본부</option>
+				<option value="http://kahis.go.kr/home/lkntscrinfo/selectLkntsStats.do">법정가축전염병 발생통계</option>
+				<option value="http://www.kahis.go.kr/home/lkntscrinfo/selectLkntsOccrrncList.do?openFlag=Y">법정가축전염병 발생현황</option>
+			</select>	
+		</div>
+	</div> 
+</div>
+
+<!-- END PAGE FOOTER -->
+
+</body>
+</html>
+
