@@ -1,0 +1,60 @@
+
+
+div#header {
+    background-color:#151255;
+    color:white;
+    text-align:center;
+    padding:5px;
+}
+
+div#nav {
+    line-height:30px;
+    background-color:#ddddff;
+    height:300px;
+    width:100px;
+    float:left;
+    padding:5px; 
+}
+div#section {
+	background-color:#f4fafb;
+	text-align:center;
+	padding:1px; 
+}
+div#footer {
+    background-color:#151255;
+    color:white;
+    clear:both;
+    text-align:center;
+    padding:5px; 
+}
+
+div#maims{
+	border :1px solid navy;
+	width : 350px;
+	background-color:#6fafd2;
+	color:#000;
+	font-family: Verdana, sans-serif;
+	font-size:medium;
+	height:90px;
+	text-align:center;
+	padding:5px; 
+}
+
+div#height10px {
+    height:10px;
+}
+
+div#height20px {
+    height:10px;
+}
+
+
+div#fonttextnormal {
+    color:#661205;
+}
+
+.selBox{
+	width: 470px !important
+	height: 40px !important
+}
+

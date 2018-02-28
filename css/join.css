@@ -1,0 +1,139 @@
+@charset "UTF-8";
+
+@import url(http://fonts.googleapis.com/earlyaccess/nanumgothic.css);
+
+html, body {height:100%; margin:0; padding:0; border:0; line-height:18px;}
+body{ height:100%; margin:0; padding:0; font-size:12px; color:#555555; font-family:'Nanum Gothic',"dotum";line-height:18px; }
+
+pre {border:1px solid red;}
+
+
+div,h1,h2,h3,h4,h5,h6,ul,ol,li,dl,dt,dd,form,fieldset,p,pre{ 
+	margin:0; padding:0;
+	list-style:none;}
+
+span{vertical-align:top;}
+a{vertical-align:top}
+table, tr, td, th {border-collapse:collapse;border-spacing:0px;padding:0px;}
+select { padding:0px; margin:0; color:#696969; border:1px solid #bebebe; vertical-align:middle; font-size:100%; font-family:'Nanum Gothic',"dotum",Sans-serif; background:#fbfbfb; }
+fieldset {padding:0;}
+fieldset,dl,dd,dt,img{border:0;vertical-align:middle;}
+address,em{font-style:normal; }
+hr,legend {display:none;}
+caption {width:0; font-size:0;line-height:0;height:0;overflow:hidden;}
+input { margin:0; padding:0; vertical-align:middle; font-size:12px; color:#555555; font-family:'Nanum Gothic',"dotum"; }
+button { border:0; background:0; padding:0; margin:0; }
+
+input[type="button"], button {height:24px; line-height:22px; border:1px solid #2c3447; background:#3e455b; color:#FFF; border-radius:3px; padding:0 5px; cursor:pointer;} 
+button, input[type="reset"], input[type="button"], input[type="submit"] {line-height:normal; border:none;}
+
+a:link {color:#555;text-decoration:none;}
+a:visited {color:#555;text-decoration:none;}
+a:active {color:#555;text-decoration:none;}
+a:hover {text-decoration:underline;color:#3D7A00;}
+
+
+textarea {font-family:'Nanum Gothic',"dotum";color:#555;}
+
+.clearfix {display: inline-block;}
+.clearfix:after {content:".";display:block;clear:both;visibility:hidden;line-height:0;height:0;}
+
+.blind {overflow:hidden; position:absolute; top:-10000px; left:0; /* visibility:hidden; */ font-size:0; line-height:0; height:0;text-indent: -99999px; z-index:200;}
+
+
+/* 설정 */
+#header{position:relative;height:85px;background:url(../images/top_back.png) 50% bottom repeat-x}
+#g_body{min-height:100%;margin:-85px 0;background:url(../images/visual_back.png) top center repeat-y}
+*html #g_body{height:100%}
+#content{padding:85px 0;}
+#footer{clear:both;height:85px; background-color:#ffffff }
+
+#skipnavi{position:absolute;top:-100px;z-index:10000;width:100%}
+#skipnavi li{float:left;position:absolute;top:0;left:0;width:100%}
+#skipnavi a{overflow:hidden;color:#fff;text-align:center}
+
+#skipnavi a:focus,#skipnavi a:active{position:absolute;top:100px;left:0;width:100%;height:auto;margin-bottom:10px;padding:5px;background:#000;font-weight:bold;color:#fff}
+
+
+/* top */
+.logo{position:relative;width:1000px;margin:0 auto;}
+.logo h1{padding-top:20px; margin-bottom:25px;float:left}
+.logo ul {float:right; position:relative; margin-top:30px}
+.logo ul li{ margin:5px;letter-spacing:-0.5px; line-height:20px; float:left}
+.logo ul li.mo button[type="button"]{ height:30px; background:#c42730; color:#FFF; border-radius:3px; padding:3px 10px 5px 10px; cursor:pointer;  border:0; margin:0 auto}
+.logo ul li.en button[type="button"]{ height:30px; background:#000166; color:#FFF; border-radius:3px; padding:3px 10px 5px 10px; cursor:pointer;  border:0; margin:0 auto}
+.logo ul li.ko button[type="button"]{ height:30px; background:#003669; color:#FFF; border-radius:3px; padding:3px 10px 5px 10px; cursor:pointer;  border:0; margin:0 auto}
+
+/* 비쥬얼 */
+.visual{width:100%; height:400px}
+.inside_visual{width:1000px; height:500px; margin:0 auto; position:relative}
+.inside_visual h2{ font-size:36px; font-weight:600; position:absolute; top:80px; left:0; color:#FFF; letter-spacing:-1px; line-height:45px; text-shadow:2px 2px #666; width:580px;}
+.inside_visual h2 span{position:absolute; top:100px; left:0;font-size:15px;letter-spacing:0;line-height:18px;text-shadow:1px 1px #666;}
+
+
+/* 로그인 */
+#login{position:absolute;width:379px;height:260px;top:73px;left:596px;padding:35px 0 0 0;margin:0;font-size:12px;line-height:normal;background:url(../images/log_in_back.png) no-repeat top left;color:#767676;}
+#login form{ display:none; margin:0; padding:0;}
+#login fieldset{ border:0; margin:0; padding:0;}
+#login legend{ position:absolute; left:0; top:0; width:1px; height:1px; font-size:0; line-height:0; visibility:hidden;}
+
+#login .btn_help,
+#login .btn_help input{ position:relative; display:inline-block; margin:0; padding:0; overflow:visible; height:32px; line-height:32px; font-size:12px; font-weight:bold; color:#fff; vertical-align:middle; cursor:pointer; border:0; text-decoration:none !important; background:transparent url(../images/btn_help.gif) no-repeat;}
+#login .btn_help input{ left:4px; background-position:right top; *vertical-align:top; padding:0 24px 0 36px;}
+
+#login .btn_help2,
+#login .btn_help2 input{ position:relative; display:inline-block; margin:0; padding:0; overflow:visible; height:32px; line-height:32px; font-size:12px; font-weight:bold; color:#fff; vertical-align:middle; cursor:pointer; border:0; text-decoration:none !important; background:transparent url(../images/btn_help.gif) no-repeat;}
+#login .btn_help2 input{ left:4px; background-position:right top; *vertical-align:top; padding:0 24px 0 36px;}
+
+#login .btn_new,
+#login .btn_new input{ position:relative; display:inline-block; margin:0; padding:0; overflow:visible; height:32px; line-height:32px; font-size:12px; font-weight:bold; color:#fff; vertical-align:middle; cursor:pointer; border:0; text-decoration:none !important; background:transparent url(../images/btn_new.gif) no-repeat;}
+#login .btn_new input{ left:4px; background-position:right top; *vertical-align:top; padding:0 24px 0 36px;}
+
+
+#login .gLogin .btn_new{position:absolute;top:195px;left:5px}
+#login .gLogin .btn_help{position:absolute;top:195px;left:125px}
+#login .gLogin .btn_help2{position:absolute;top:195px;right:10px}
+
+
+#login{width:379px;padding:25px 0 0 0;margin:0;font-size:12px;line-height:normal;color:#767676;}
+#login .btnLogin,
+#login .btnLogin input{ position:relative; display:inline-block; margin:0; padding:0 0 0 10px; overflow:visible; height:35px; line-height:35px; font-size:15px; font-weight:600; color:#fff; vertical-align:middle; cursor:pointer; border:0; text-decoration:none !important; background:transparent url(../images/btnLogin.png) no-repeat;}
+#login .btnLogin{ margin:0 4px 0 0; background-position:left top;}
+#login .btnLogin input{ left:3px; background-position:right top; *vertical-align:top; padding:0 30px 0 30px;}
+
+#login .item{ position:relative; padding-left:15px; padding-top:5px}
+#login .iLabel{ display:block; position:static; top:15px; font-weight:600; font-size:13px; padding:10px 15px 8px 0;float:left;width:60px;text-align:right;}
+#login .iText{ position:relative; display:block; font-size:13px; color:#767676; border:1px solid #b7b7b7; border-right-color:#e1e1e1; border-bottom-color:#e1e1e1; background:transparent;}
+
+/* #login .iText{ position:relative; display:block; font-size:13px; height:15px; color:#767676; border:1px solid #b7b7b7; border-right-color:#e1e1e1; border-bottom-color:#e1e1e1; background:transparent;} */
+
+#login .gLogin .iLabel{ left:10px;}
+#login .gLogin .iText{ width:250px; padding:8px 0 10px 10px; margin:0 0 5px 0;}
+#login .gLogin .btnLogin{position:absolute;top:125px;right:25px;}
+#login .gLogin .keeping{ float:none; height:32px; line-height:32px; margin:10px 0; padding:0 0 0 90px;}
+#login .gLogin .keeping label{ position:static; cursor:pointer;}
+#login.gLogin .gLogin{ display:block;}
+
+
+/* 카피라이트 */
+.copy_content_wrap{width:100%;height:85px;}
+.copyright{width:1000px;margin:0 auto; position:relative;}
+/*.copyright .b_btn a{height:25px;padding:0 15px 3px 15px;line-height:25px; background:#767676; color:#FFF; display:block; position:absolute; top:5px; right:0; text-decoration:none; border-radius: 20px;}
+.copyright .b_btn a:hover{ color:#FF0; font-weight:bold;}*/
+.copyright address {font-size:12px;font-weight:bold; color:#333;}
+
+.selectParent{overflow:hidden;}
+.selectParent select {padding:2px; border:1px #bababa solid; height:24px;}
+
+/* 카피 링크 */
+.copy_link{float:right;position:relative;height:25px;text-align:left;}
+.copy_link input{float:right;margin-left:3px}
+.copy_link ul li{float:left;height:25px;margin-right:5px}
+
+
+.copy_link > ul > li > .select button.myValue{width:100%;height:24px;*padding-left:5px;text-indent:5px;*text-indent:0}
+.copy_link > ul > li > .select .ctrl{position:absolute;top:0;right:0;width:22px;height:22px;border:1px solid #bababa;border-left:1px solid #bababa;background:#fff}
+
+.copy_link > ul > li > .select .arrow{position:absolute;top:8px;right:6px;width:1px;height:7px;border-top:4px solid #999;border-left:4px solid #fff;border-right:4px solid #fff;line-height:0;font-size:0}
+.copy_link > ul > li > .select > ul{position:absolute;top:-200px;left:0;z-index:9999;width:99%;border-right:1px #bababa solid;border-top:1px #bababa solid}
+.copy_link > ul > li > .select > ul > li{clear:both;width:100%;height:18px}
